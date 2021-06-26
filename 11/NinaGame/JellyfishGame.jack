@@ -1,0 +1,312 @@
+// This class is responsible to run all the game classes together 
+class JellyfishGame
+{
+    static int SCREEN_ROWS, SCREEN_COLS, SCREEN_FRAME, COLLISION_AREA;
+    static int NUM_OF_STRIKES, NUM_OF_BUBBLES, NUM_OF_JELLYFISHES, TIMER_INIT;
+    static int LEFT, UP, RIGHT, DOWN, SPACE, Q;
+    
+    field Fish fish;
+    field Array bubbles, strikes, jellyfishes;
+    field bool game_over;
+    field int strike_curr_idx, bubble_curr_idx, jellyfish_curr_idx, timer, points;
+	
+    //Constructor of a new game
+	constructor JellyfishGame new() {
+		
+        // Constants
+		let SCREEN_FRAME = 35;
+		let LEFT = 130;
+        let UP = 131;
+        let RIGHT = 132;
+        let DOWN = 133;
+        let SPACE = 32;
+        let Q = 81;
+        let SCREEN_COLS = 512;
+		let SCREEN_ROWS = 256;
+        let COLLISION_AREA = 20;
+        let NUM_OF_STRIKES = 1000;
+        let NUM_OF_BUBBLES = 1000;
+        let NUM_OF_JELLYFISHES = 20;
+        let TIMER_INIT = 35;
+        
+        let points = 50;
+        let timer = 10;
+        let strike_curr_idx = 0;
+        let bubble_curr_idx = 0;
+        let jellyfish_curr_idx = 0;
+        
+        let bubbles = Array.new(NUM_OF_BUBBLES);
+        let strikes = Array.new(NUM_OF_STRIKES);
+        let jellyfishes = Array.new(NUM_OF_JELLYFISHES);
+        let game_over = false;
+        let fish = Fish.new(Math.divide(SCREEN_COLS, 2), SCREEN_ROWS - SCREEN_FRAME - 20,  SCREEN_FRAME + 20);
+        return this;
+    }
+    
+    // Draws the frame of the game
+    function void draw_frame(){
+        do Screen.setColor(true);
+        do Screen.drawLine(SCREEN_COLS - SCREEN_FRAME, SCREEN_FRAME, SCREEN_COLS - SCREEN_FRAME, SCREEN_ROWS - SCREEN_FRAME);
+        do Screen.drawLine(SCREEN_COLS - SCREEN_FRAME, SCREEN_ROWS - SCREEN_FRAME, SCREEN_FRAME, SCREEN_ROWS - SCREEN_FRAME);
+        do Screen.drawLine(SCREEN_FRAME, SCREEN_ROWS - SCREEN_FRAME, SCREEN_FRAME, SCREEN_FRAME);
+        do Screen.drawLine(SCREEN_FRAME, SCREEN_FRAME, SCREEN_COLS - SCREEN_FRAME, SCREEN_FRAME);
+        return;
+    }
+        
+    // The run function of this game, returns false if the player decided to abort at the opening screen.
+    method void run_game(){
+        var int LOOP_WAIT;
+        var int cnt;
+        var Jellyfish current_jellyfish;
+        
+        let LOOP_WAIT = 20;
+        do opening_page();
+        
+        // Screen
+        do Screen.clearScreen();
+        
+        while (true)
+        {
+            do main_loop();
+            do Output.moveCursor(22, 0);
+            do Output.printString("Points: ");
+            do Output.printInt(get_points());
+            do Sys.wait(LOOP_WAIT);
+            
+            // Finish Game from keyboard
+            if (Keyboard.keyPressed() = Q) {
+                do closing_page("Game Stopped");
+                return;   
+            }  
+            
+            // Game over
+            if (game_over | (points < 1)) {
+                do closing_page("Game Over");
+                return;
+            }
+            
+            // All Jellyfish were bubbled
+            let cnt = 0;
+            while (cnt < jellyfish_curr_idx) {
+                let current_jellyfish = jellyfishes[cnt];
+                if (~(current_jellyfish.is_dead())) {
+                    let cnt = jellyfish_curr_idx;
+                }
+                let cnt = cnt + 1;
+                if (cnt = jellyfish_curr_idx){
+                    do closing_page("You Won!!!");
+                    return;
+                }
+            }
+        }
+        return;
+    }
+    
+    // Deletes the games arrays 
+    method void delete(){
+        var int cnt;
+        var Jellyfish jellyfish;
+        var Bubble bubble;
+        var Strike strike;
+
+        do fish.delete();
+        let cnt = 0;
+        while (cnt < jellyfish_curr_idx) {
+            let jellyfish = jellyfishes[cnt];
+            do jellyfish.delete();
+        }
+        let cnt = 0;
+        while (cnt < bubble_curr_idx) {
+            let bubble = bubbles[cnt];
+            do bubble.delete();
+        }
+        let cnt = 0;
+        while (cnt < strike_curr_idx) {
+            let strike = strikes[cnt];
+            do strike.delete();
+        }
+        do bubbles.dispose();
+        do jellyfishes.dispose();
+        do strikes.dispose();
+        do Memmory.deAlloc(this);
+        return;
+    }
+    
+    // The games main loop
+    method void main_loop()
+    {
+        var int cnt, cnt_b;
+        var Strike current_strike, new_strike;
+        var Bubble current_bubble, new_bubble;
+        var Jellyfish current_jellyfish, new_jellyfish;
+        
+        // Draw the frame
+        do JellyfishGame.draw_frame();
+        
+        // Create JellyfishGame
+		if (jellyfish_curr_idx < NUM_OF_JELLYFISHES) {
+            if (timer = 0){
+                let new_jellyfish = Jellyfish.new(Math.divide(SCREEN_COLS, 3), 
+                                                  SCREEN_FRAME + 30, SCREEN_FRAME + 30);
+                let jellyfishes[jellyfish_curr_idx] = new_jellyfish;
+                let jellyfish_curr_idx = jellyfish_curr_idx + 1;  
+                let timer = TIMER_INIT;
+            } else {
+                let timer = timer - 1;
+            }
+        }
+        
+        // move fish
+        if ((bubble_curr_idx < NUM_OF_BUBBLES) & (Keyboard.keyPressed() = SPACE)){
+            let new_bubble = fish.bubble();
+            let bubbles[bubble_curr_idx] = new_bubble;
+            let bubble_curr_idx = bubble_curr_idx + 1;          
+        }
+        if (Keyboard.keyPressed() = RIGHT) {
+            do fish.move_right();
+        } else {
+            if ((Keyboard.keyPressed() = LEFT) & (fish.getx() > SCREEN_FRAME)){
+                do fish.move_left();
+            }
+        }
+        do fish.draw();
+        
+        // move jellyfish
+        let cnt = 0;
+        while (cnt < jellyfish_curr_idx) {
+            let current_jellyfish = jellyfishes[cnt];
+            if (~(current_jellyfish.is_dead())) {
+                if (strike_curr_idx < NUM_OF_STRIKES){
+                    let new_strike = current_jellyfish.strike();
+                    if (new_strike) {
+                        let strikes[strike_curr_idx] = new_strike;
+                        let strike_curr_idx = strike_curr_idx + 1;
+                    }                
+                }
+                
+                // Move jellyfish
+                do current_jellyfish.move();
+                do current_jellyfish.draw();   
+                
+                // Check collisions with the bubbles
+                let cnt_b = 0;
+                while (cnt_b < bubble_curr_idx) {
+                    let current_bubble = bubbles[cnt_b];
+                    if (~(current_bubble.is_done()))
+                    {
+                        if ((Math.abs(current_bubble.getx() - current_jellyfish.getx()) < COLLISION_AREA) &
+                            (Math.abs(current_bubble.gety() - current_jellyfish.gety()) < COLLISION_AREA)) {
+                                do current_jellyfish.set_escape();
+                                let points = points + 1;
+                            }
+                    }
+                    let cnt_b = cnt_b + 1;
+                }
+                
+                // Check collision with the fish
+                if ((Math.abs(fish.getx() - current_jellyfish.getx()) < COLLISION_AREA) &
+                    (Math.abs(fish.gety() - current_jellyfish.gety()) < COLLISION_AREA)){
+                        let game_over = true;
+                        return;
+                }
+            }            
+            let cnt = cnt + 1;
+        }        
+        
+        // move strike
+        let cnt = 0;
+        while (cnt < strike_curr_idx) {
+            let current_strike = strikes[cnt];
+            if (~(current_strike.is_done())) {
+                do current_strike.move();
+                do current_strike.draw();
+                
+                // Check collision with the fish
+                if ((Math.abs(fish.getx() - current_strike.getx()) < COLLISION_AREA) &
+                    (Math.abs(fish.gety() - current_strike.gety()) < COLLISION_AREA)){
+                        let points = points - 25;
+                        do current_strike.set_done();
+                        return;
+                }
+            }
+            let cnt = cnt + 1;
+        }
+        
+        // move bubble
+        let cnt = 0;
+        while (cnt < bubble_curr_idx) {
+            let current_bubble = bubbles[cnt];
+            if (~(current_bubble.is_done())) {
+                do current_bubble.move();
+                do current_bubble.draw();
+            }
+            let cnt = cnt + 1;
+        }
+        return;
+	}
+	
+    // Return the current points score 
+    method int get_points(){
+        return points;
+    }
+    
+    // The opening page of the game
+    method void opening_page() {
+        do Output.moveCursor(5,28);
+	    do Output.printString("The Jellyfish War");
+        do Output.moveCursor(6,26);
+        do Output.printString("--------------------");
+        do Output.println();
+        do Output.println();
+        do Output.printString("Welcome to Gal and Nina's game!");
+        do Output.println();
+        do Output.printString("In this game your goal is to get rid of all the evil jellyfish.");
+        do Output.println();
+        do Output.printString("By pressing space your fish will send an air bubble which can");
+        do Output.printString("lift the jellyfish up and outside of the game.");
+        do Output.println();
+        do Output.printString("You can move your fish right\left by using the keyboard arrows.");
+        do Output.println();
+        do Output.printString("Beware! Don't let the jellyfish catch you, and avoid the jellyfish strikes.");
+        do Output.printString(" Every strike hit will cause you loosing points and");
+        do Output.println();
+        do Output.printString("a jellyfish collision will end the game");
+        do Output.println();
+        do Output.printString("To exit the game at any point press 'Q'");
+        do Output.println();
+        do Output.println();
+        do Output.printString("ARE YOU READY TO START???");
+        do Output.println();
+        do Output.printString("To start, press on any key.");
+        
+        while (Keyboard.keyPressed() = 0){
+            do Sys.wait(10);
+        }
+        
+        do Screen.clearScreen();
+        return;
+  
+    }
+    
+    //The closing page of the game
+    method void closing_page(String msg){ 
+        do Screen.setColor(true);
+        do Screen.drawRectangle(Math.divide(SCREEN_COLS, 4), Math.divide(SCREEN_ROWS, 4),
+                                Math.multiply(Math.divide(SCREEN_COLS, 4),3), 
+                                Math.multiply(Math.divide(SCREEN_ROWS, 4),3));
+        do Screen.setColor(false);
+        do Screen.drawRectangle(Math.divide(SCREEN_COLS, 4) + 5, Math.divide(SCREEN_ROWS, 4) + 5,
+                                Math.multiply(Math.divide(SCREEN_COLS, 4),3) - 5, 
+                                Math.multiply(Math.divide(SCREEN_ROWS, 4),3) - 5);
+        do Output.moveCursor(7,28);
+	    do Output.printString(msg);
+        do Output.moveCursor(9,25);
+	    do Output.printString("Your Score: ");
+	    do Output.printInt(points);
+        do Sys.wait(1000);
+        while(Keyboard.keyPressed() = 0){
+            do Sys.wait(10);
+        }
+        return; 
+    }
+}

@@ -1,0 +1,32 @@
+/** Implements a random number generator for random shapes in the game. */
+class Random {
+    static int random_num;  // The number that the random number is generated according to (the time until the player preest "S")
+
+    function int random() {
+        let random_num = random_num + 20251;
+        if (random_num < 0) {
+            let random_num = random_num - 32767 - 1;
+        }
+        return random_num;
+    }
+
+    // Returns a pseudo-random number in the range of 0 to the 'range' given. 
+    function int randomRange(int range) {
+        var int m, r;
+        let m = 1;
+        while (m < range) {
+            let m = m * 2 + 1;
+        }
+        let r = Random.random() & m;
+        while (r > range) {
+            let r = Random.random() & m;
+        }
+        return r;
+    }
+
+    // Set a new random_num value (so that the random generator will be randomized).
+    function void setRandomNum(int random_game_num) {
+        let random_num = random_game_num;
+        return;
+    }
+}

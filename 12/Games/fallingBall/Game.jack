@@ -1,0 +1,303 @@
+/**  a class implementing the game object*/
+class Game {
+    // runs the game board - controls the steps locations and the ball locations.
+
+    field int bottom_border; //bottom border of the screen, for the game
+    field int top_border; //top border of the screen, for the game
+    field int right_border; //right border of the screen, for the game
+    field int left_border; //left border of the screen, for the game
+    field int steps_number; // number of the steps in this game
+    
+    field boolean game_over; // boolean which states if the game is over or not
+    field boolean last; // boolean which states if the ball is bellow last step
+    field int score; // the score of the player in the game
+    field Array steps; // array of all steps in the game
+    field Ball ball; // the ball object of the game
+    field int curr_step; // the current step index which the ball stands on
+    field int arise_amount; // the amount of pixels increased every time
+    field int counter_to_arise; // number of round cycles until arise
+    field int arise_timing; // a counter when all steps should arise
+    field int score_counter; // a counter for increasing arise_amount every time it gets to 50
+    field int ball_radius; // the radius of the ball
+    field int baricades_max; // max hight of baricades in the game
+    field int check_button; // dfines if input should be checked
+
+    
+    /**
+    constructor for Game
+    param int bottom: the game bottom border
+    param int top: the game top border
+    param int right: the game right border
+    param int left: the game left border
+    param int steps_num: the steps number of the game
+    param int count_to_arise: the initial arise counter (game rounds)
+    */
+    constructor Game new(int bottom, int top, int right, int left, int steps_num, int count_to_arise) {
+        var int counter, ball_falling_speed, ball_jumping_speed, ball_x_speed, ball_y, ball_x, barricades_max_height;
+        var Step first;
+        let bottom_border = bottom;
+        let top_border = top;
+        let right_border = right;
+        let left_border = left;
+        let steps_number = steps_num;
+        do Random.init_random(right_border, left_border);
+        let barricades_max_height = (bottom_border-top_border)/steps_number/3;
+        do Baricade.set_hight_range((barricades_max_height/2), barricades_max_height); 
+        
+        let game_over = false;
+        let last = false;
+        let score = 0;
+        let check_button = 50;
+        let steps = Array.new(steps_number);
+        let counter = 0;
+        let ball_radius = 5;
+        do Step.set_x_borders(left_border, right_border);
+        do Step.set_holes_range(ball_radius * 3, ball_radius * 5);
+        while (counter < steps_number){
+            let steps[counter]  = Step.new(bottom_border - (counter * (bottom_border-top_border) / 5));
+            let counter = counter + 1;
+        }
+        let curr_step = 0;
+        let ball_falling_speed = 3;
+        let ball_jumping_speed = 2;
+        let ball_x_speed = 1;
+        let first = steps[curr_step];
+        let ball_x = Random.get_random(left_border, right_border);
+        let ball_y = first.get_y() - ball_radius;
+        let ball = Ball.new(ball_radius, ball_falling_speed, ball_jumping_speed, ball_x_speed, ball_y, ball_x);
+        let arise_amount = 1;
+        let counter_to_arise = count_to_arise;
+        let arise_timing = 0;
+        let score_counter = 0;
+        return this;
+     }
+
+    /**  updates the arise amount - increase by 1 .*/
+    method void update_arise_amount() {
+        if (counter_to_arise > 0){
+            let counter_to_arise = counter_to_arise - 1;
+        }
+        do ball.inc_speed();
+        return;
+    }
+
+    /**  returns the game current score .*/
+    method int get_score(){
+        return score;
+    }
+
+    /**  checks if the ball is between hole x dimensions .*/
+    method void update_state() {
+        var int ball_x,ball_left, ball_right, hole_left, hole_right;
+        var Step current;
+        let current = steps[curr_step];
+        let ball_left = ball.get_x() - ball.get_radius();
+        let hole_left = (current.get_hole_left());
+        let ball_right = ball.get_x() + ball.get_radius();
+        let hole_right = (current.get_hole_right());
+        let ball_x = ball.get_x();
+        if (last){
+            if (ball.get_y() < current.get_y()){
+                let last = false;
+            }
+        }
+        if ((ball_x + ball_radius < hole_right) & (ball_x - ball_radius > hole_left) & 
+        (ball.get_y() + ball_radius = current.get_y())) {
+            do ball.set_falling(true);
+            let curr_step = curr_step - 1;
+            if (curr_step < 0){
+                let curr_step = steps_number - 1;
+            }
+            let current = steps[curr_step];
+            let score = score + 1;
+            let score_counter = score_counter + 1;
+            if (current.get_y() < ball.get_y()){
+                let last = true;
+            }
+        }
+        else {
+            if ((ball.get_y() + ball_radius = current.get_y())){
+                do ball.set_falling(false);
+            }
+        }
+        return;
+    }
+    
+    /**  checks if the ball reached the top limit .*/
+    method boolean is_game_over(){
+        var int ball_top;
+        let ball_top = ball.get_y() - ball.get_radius();
+        if (ball_top < top_border | ball_top = top_border){
+            return true;
+        }
+        return false;
+    }
+    
+    /**  
+    runs one round of the game 
+    param int key_pressed: the key was pressed when the round began
+    .*/
+    method void round(char key_pressed){
+        var boolean should_move;
+        if (check_button = 0){
+            let check_button = 50;
+            if (key_pressed = 130){ //key is left arrow
+                if (ball.get_direction() = -1){
+                    do ball.inc_speed();
+                }
+                else {
+                    do ball.restart_speed();
+                    do ball.set_direction(-1);
+                }
+            }
+            else {
+                if (key_pressed = 132){ //key is right arrow
+                    if (ball.get_direction() = 1){
+                        do ball.inc_speed();
+                    }
+                    else {
+                        do ball.restart_speed();
+                        do ball.set_direction(1);
+                    }
+                }
+            }
+        }
+        let check_button = check_button - 1;
+        if (key_pressed = 32){ //key is space
+            do ball.set_jumping(true);
+        }
+        do update_state();
+        if (score_counter = 30){
+            let score_counter = 0;
+            do update_arise_amount();
+        }
+        if (arise_timing = 0) {
+            let should_move = true;
+            let arise_timing = counter_to_arise;
+        }
+        else {
+            let should_move = false;
+            let arise_timing = arise_timing - 1;
+        }
+        do move_all(should_move);
+        do draw_all(should_move);
+        return;
+    }
+    
+                
+    /**  
+    moves all object in the game according their current location 
+    param boolean move: should the screen object arise  
+    .*/
+    method void move_all(boolean move){
+        var int ball_x,ball_left, ball_right, hole_left, hole_right, counter;
+        var Step current;
+        var Baricade cur_bar;
+        let current = steps[curr_step];
+        
+        //moves the ball     
+        do ball.move();
+        if (ball.is_falling()){
+            if (ball.get_y() + ball_radius > bottom_border){
+                do ball.set_y(bottom_border - ball_radius);
+            }
+            let ball_left = ball.get_x() - ball.get_radius();
+            let hole_left = (current.get_hole_left());
+            let ball_right = ball.get_x() + ball.get_radius();
+            let hole_right = (current.get_hole_right());
+            let ball_x = ball.get_x();
+            if ((ball.get_y() + ball_radius > current.get_y()) & ~last){
+                do ball.set_y(current.get_y() - ball_radius);
+                do ball.set_falling(false);
+            }
+        }
+
+        // moves the board arise_amount pixels up
+        if (move){
+            do ball.set_y(ball.get_y() - arise_amount);
+            let counter = 0;
+            while (counter < steps_number){
+                let current = steps[counter];
+                do current.move(arise_amount);
+                if (current.get_y() < top_border){
+                    do current.update(bottom_border - (top_border - current.get_y()));
+                }
+                let counter = counter + 1;
+            }
+        }
+        let ball_x = ball.get_x();
+        if (ball_x + ball_radius > right_border){
+            do ball.set_x(right_border - ball_radius);
+            do ball.set_direction(-ball.get_direction());
+        }
+        else {
+            if (ball_x - ball_radius < left_border){
+                do ball.set_x(left_border + ball_radius);
+                do ball.set_direction(-ball.get_direction());
+            }
+        }
+        let cur_bar = current.get_baricade();
+        if (~(cur_bar.canPassBaricade(ball.get_prevx(),ball.get_prevy(), ball.get_x(), ball.get_y(), ball_radius))){
+            if (ball.get_prevx() > cur_bar.get_x()){
+                do ball.set_x(cur_bar.get_x() + ball_radius); 
+            }
+            else{
+                do ball.set_x(cur_bar.get_x() - ball_radius);
+            }
+            do ball.set_direction(-ball.get_direction());
+        }
+        if (ball.get_y() + ball_radius < top_border){
+            do ball.set_y(top_border + ball_radius);
+        }
+        return;
+    }
+
+    /**  
+    draws all the objects on the screen 
+    param boolean move: should the screen object arise  
+    .*/
+    method void draw_all(boolean move){
+        var int counter;
+        var Step current;
+        let counter = 0;
+        if (move){
+            while (counter < steps_number){
+                let current = steps[counter];
+                do current.draw();
+                let counter = counter + 1;
+            }
+            do clean_top();
+        }
+        do ball.draw();
+        return;
+    }
+
+    /**   draws the baord frame .*/
+    method void print_board_frame(){
+        do Screen.setColor(true); 
+        do Screen.drawLine(right_border+1 ,bottom_border, right_border+1, top_border-1);
+        do Screen.drawLine(right_border+1 ,top_border-1, left_border-1, top_border-1);
+        do Screen.drawLine(left_border-1 ,top_border-1, left_border-1, bottom_border);
+        return;
+        
+    }
+    
+    /**   cleans the top of the frame .*/
+    method void clean_top(){
+        var int i;
+        let i = 2;
+        do Screen.setColor(true); 
+        do Screen.drawLine(right_border+1 ,top_border-1, left_border-1, top_border-1);
+        do Screen.setColor(false); 
+        while(i < 20){
+            do Screen.drawLine(right_border+1 ,top_border-i, left_border-1, top_border-i);
+            let i = i + 1;
+        }
+        return;
+        
+    }
+
+    
+
+
+}

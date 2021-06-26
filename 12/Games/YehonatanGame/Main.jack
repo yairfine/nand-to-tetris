@@ -1,0 +1,80 @@
+class Main
+{
+    /*
+     * main function. construct a gmae, run it, and free it when it ends
+     */
+    function void main()
+    {
+        var SnakeGame game;
+        var int score;
+        let game= SnakeGame.new();
+        let score = game.loop();
+        do game.dispose();
+        while(Main.playAgain(score))
+        {
+            do Screen.clearScreen();
+            let game= SnakeGame.new();
+            let score = game.loop();
+            do game.dispose();
+        }
+        return;
+    }
+
+    function boolean playAgain(int score)
+    {
+        var Array arr;
+        var int i;
+        var char key;
+        var String toFree;
+        var String strScore;
+        do Screen.setColor(true);
+        do Screen.drawRectangle(100,70,412,200);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(101,71,411,199);
+
+        let strScore = String.new(8);
+        do strScore.setInt(score);
+        let arr = Array.new(5);
+        let arr[0]= "        game over";
+        let arr[1]= "     your score is ";
+        let arr[2]=  strScore;
+        let arr[3]= "do you want to play again?";
+        let arr[4]= "         Y / N";
+
+        let i = 0;
+        do Output.moveCursor(7,25);
+        while (i < 5)
+        {
+            if (i=2)
+            {
+                do Output.moveCursor(7 + (2 * i), 32);
+            }
+            else
+            {
+                do Output.moveCursor(7 + (2 * i), 20);
+            }
+            do Output.printString(arr[i]);
+            let i = i + 1;
+            do Sys.wait(500);
+        }
+        let i = 0;
+        while (i < 5){
+            let toFree = arr[i];
+            do toFree.dispose();
+            let i = i + 1;
+        }
+        do arr.dispose();
+
+        let key = 0;
+        while(~((key = 89) | (key = 78)))
+        {
+            let key = Keyboard.keyPressed();
+        }
+        do Sys.wait(300);
+        if (key = 89)
+        {
+            return true;
+        }
+        return false;
+    }
+}

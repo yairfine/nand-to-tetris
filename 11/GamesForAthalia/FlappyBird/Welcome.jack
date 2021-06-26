@@ -1,0 +1,99 @@
+class Welcome
+{
+	field boolean start; // indicates if the game should start
+	field Array linesNumbers; // keeps the lines in which the text should be displayed
+	field Array linesText; // keeps the test that will be displayed on each line
+	field Bird bird;
+
+	/** constructs a new welcome screen - initializes the text that shoud be written and the bird that should be drawed*/
+	constructor Welcome new()
+	{
+		let linesNumbers = Array.new(8);
+		let linesText = Array.new(8);
+
+		let linesNumbers[0] = 9;
+		let linesNumbers[1] = 10;
+		let linesNumbers[2] = 11;
+		let linesNumbers[3] = 17;
+		let linesNumbers[4] = 18;
+		let linesNumbers[5] = 19;
+		let linesNumbers[6] = 20;
+		let linesNumbers[7] = 21;
+
+		let linesText[0] = "                            Welcome                             ";
+		let linesText[1] = "                               to                               ";
+		let linesText[2] = "                          FLAPPY BIRD                           ";
+		
+		
+
+		let linesText[3] = "                          INSTRUCTIONS:                          ";
+		let linesText[4] = "                      press ENTER to begin                      ";
+		let linesText[5] = "                   Use the up arrow to move up                   ";
+		let linesText[6] = "               during the game, press r to restart               ";
+		let linesText[7] = "                 at any point, press Esc to exit                 ";
+		
+		
+		let bird = Bird.new();
+		return this;
+	}
+	
+	/** Displays the welcome screen (opening screen). */
+	method void display()
+	{
+		do bird.draw(1615);
+		do bird.draw(1611);
+		do bird.draw(1619);
+		do Output.moveCursor(linesNumbers[0],0);
+		do Output.printString(linesText[0]);
+		do Output.moveCursor(linesNumbers[1],0);
+		do Output.printString(linesText[1]);
+		do Output.moveCursor(linesNumbers[2],0);
+		do Output.printString(linesText[2]);
+		do Output.moveCursor(linesNumbers[3],0);
+		do Output.printString(linesText[3]);
+		do Output.moveCursor(linesNumbers[4],0);
+		do Output.printString(linesText[4]);
+		do Output.moveCursor(linesNumbers[5],0);
+		do Output.printString(linesText[5]);
+		do Output.moveCursor(linesNumbers[6],0);
+		do Output.printString(linesText[6]);
+		do Output.moveCursor(linesNumbers[7],0);
+		do Output.printString(linesText[7]);
+		do bird.draw(4815);
+		do bird.draw(4811);
+		do bird.draw(4819);	
+		
+		return;
+	}
+	
+	/** Detects if the user is willing to start the game (pressed enter) or to quit (pressed Esc) */
+	method boolean begin()
+	{	
+		var char key;
+		let key =0;
+		while (~(key = 140))
+		{
+			let key = Keyboard.keyPressed( );
+			do Sys.wait(20);
+			if (key = 128)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/** Disposes the welcome board */
+	method void dispose()
+	{
+		do bird.dispose();
+		do linesNumbers.dispose();
+		do linesText.dispose();
+		do Memory.deAlloc(this);
+		return;
+   }
+   
+	
+}
+

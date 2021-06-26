@@ -1,0 +1,102 @@
+class Bird
+{
+	field int row; // indicates the location of the bird on the screen (based on Y coordinates);
+	field int memAddress, movement; // both are parameters used to move the bird on the screen (and draw in on the first place)
+	field int direction; // indicates in which direstion to move this bird:1 == up == button in pressed, 0 == down == button is not pressed
+	
+	/** Constructs a new bird - initializes parameters and draws the bird on the screen  */
+	constructor Bird new()
+	{
+		let row = 120;
+		let movement = 0;
+		do draw((32*row) + 2);
+		return this;
+	}
+	
+	/** returns the row of the top of the bird (Y coordinate) */
+	method int getRow(){return row;}
+	
+	
+	/** draws a bird on the specified location */
+	method void draw(int location)
+	{
+		let memAddress = 16384+location;
+		do Memory.poke(memAddress+0, 1984);
+		do Memory.poke(memAddress+32, 2608);
+		do Memory.poke(memAddress+64, 4360);
+		do Memory.poke(memAddress+96, 10526);
+		do Memory.poke(memAddress+128, 10529);
+		do Memory.poke(memAddress+160, 8769);
+		do Memory.poke(memAddress+192, 31809);
+		do Memory.poke(memAddress+224, -32222);
+		do Memory.poke(memAddress+256, 32028);
+		do Memory.poke(memAddress+288, 16912);
+		do Memory.poke(memAddress+320, 31840);
+		do Memory.poke(memAddress+352, 896);
+		return;
+	}
+	
+	/** hides the bird from its current location (used for moving it around)*/
+	method void hide(int location)
+	{
+		let memAddress = 16384+location;
+		do Memory.poke(memAddress+0, 0);
+		do Memory.poke(memAddress+32, 0);
+		do Memory.poke(memAddress+64, 0);
+		do Memory.poke(memAddress+96, 0);
+		do Memory.poke(memAddress+128, 0);
+		do Memory.poke(memAddress+160, 0);
+		do Memory.poke(memAddress+192, 0);
+		do Memory.poke(memAddress+224, 0);
+		do Memory.poke(memAddress+256, 0);
+		do Memory.poke(memAddress+288, 0);
+		do Memory.poke(memAddress+320, 0);
+		do Memory.poke(memAddress+352, 0);
+		return;
+	}
+	
+
+	/** deletes the bird from its current location and draws it back where it stands on the begining of the game */
+	method void reset()
+	{
+		do hide((32*row) + 2);
+		let row = 120;
+		do draw((32*row) + 2);
+		return;
+	}
+
+	/** moves the bird up and down on the screen - bird goes up when the user presses the up-arrow, and down otherwise */
+	method void move(char key)
+	{
+		do hide((32*row) + 2);
+		if (key = 131){ let movement = 12;}
+		if (movement > 0)
+		{
+			let movement = movement - 3;
+			let row = row - (5 + movement);
+			if (row < 16) // bird is too high
+			{
+				let row = 16;
+			}
+			do draw((32*row) + 2);		
+			return;
+		}
+		let row = row + 5;
+		if ((row + 12) > 255)
+		{
+			let row = 255 - 12;
+		}
+		do draw((32*row) + 2);			
+		return;
+	}
+	
+	
+    /** Disposes this bird. */
+    method void dispose() {
+		
+		do Memory.deAlloc(this);
+		return;
+   }
+
+
+}

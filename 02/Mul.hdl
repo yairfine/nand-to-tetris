@@ -1,0 +1,73 @@
+CHIP Mul{
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+    ShiftLeft(in=a, out=SL1);
+    ShiftLeft(in=SL1, out=SL2);
+    ShiftLeft(in=SL2, out=SL3);
+    ShiftLeft(in=SL3, out=SL4);
+    ShiftLeft(in=SL4, out=SL5);
+    ShiftLeft(in=SL5, out=SL6);
+    ShiftLeft(in=SL6, out=SL7);
+    ShiftLeft(in=SL7, out=SL8);
+    ShiftLeft(in=SL8, out=SL9);
+    ShiftLeft(in=SL9, out=SL10);
+    ShiftLeft(in=SL10, out=SL11);
+    ShiftLeft(in=SL11, out=SL12);
+    ShiftLeft(in=SL12, out=SL13);
+    ShiftLeft(in=SL13, out=SL14);
+    ShiftLeft(in=SL14, out=SL15);
+
+    Mux16(a=false, b=a, sel=b[0], out=ADD0);
+    Mux16(a=false, b=SL1, sel=b[1], out=ADD1);
+    Mux16(a=false, b=SL2, sel=b[2], out=ADD2);
+    Mux16(a=false, b=SL3, sel=b[3], out=ADD3);
+    Mux16(a=false, b=SL4, sel=b[4], out=ADD4);
+    Mux16(a=false, b=SL5, sel=b[5], out=ADD5);
+    Mux16(a=false, b=SL6, sel=b[6], out=ADD6);
+    Mux16(a=false, b=SL7, sel=b[7], out=ADD7);
+    Mux16(a=false, b=SL8, sel=b[8], out=ADD8);
+    Mux16(a=false, b=SL9, sel=b[9], out=ADD9);
+    Mux16(a=false, b=SL10, sel=b[10], out=ADD10);
+    Mux16(a=false, b=SL11, sel=b[11], out=ADD11);
+    Mux16(a=false, b=SL12, sel=b[12], out=ADD12);
+    Mux16(a=false, b=SL13, sel=b[13], out=ADD13);
+    Mux16(a=false, b=SL14, sel=b[14], out=ADD14);
+    Mux16(a=false, b=SL15, sel=b[15], out=ADD15);
+
+    Add16(a=ADD0, b=ADD1, out=temp1);
+    Add16(a=ADD2, b=temp1, out=temp2);
+    Add16(a=ADD3, b=temp2, out=temp3);
+    Add16(a=ADD4, b=temp3, out=temp4);
+    Add16(a=ADD5, b=temp4, out=temp5);
+    Add16(a=ADD6, b=temp5, out=temp6);
+    Add16(a=ADD7, b=temp6, out=temp7);
+    Add16(a=ADD8, b=temp7, out=temp8);
+    Add16(a=ADD9, b=temp8, out=temp9);
+    Add16(a=ADD10, b=temp9, out=temp10);
+    Add16(a=ADD11, b=temp10, out=temp11);
+    Add16(a=ADD12, b=temp11, out=temp12);
+    Add16(a=ADD13, b=temp12, out=temp13);
+    Add16(a=ADD14, b=temp13, out=temp14);
+    Add16(a=ADD15, b=temp14, out[0..14]=tempOut, out[15]=junk);
+
+    Xor(a=a[15], b=b[15], out=optSignBit);
+
+    Or8Way(in[0]=a[0], in[1]=a[1], in[2]=a[2], in[3]=a[3], in[4]=a[4], in[5]=a[5], in[6]=a[6], in[7]=a[7], out=OrA1);
+    Or8Way(in[0]=a[8], in[1]=a[9], in[2]=a[10], in[3]=a[11], in[4]=a[12], in[5]=a[13], in[6]=a[14], in[7]=a[15], out=OrA2);
+    Or(a=OrA1, b=OrA2, out=preZRA);
+    Not(in=preZRA, out=zrA);
+
+    Or8Way(in[0]=b[0], in[1]=b[1], in[2]=b[2], in[3]=b[3], in[4]=b[4], in[5]=b[5], in[6]=b[6], in[7]=b[7], out=OrB1);
+    Or8Way(in[0]=b[8], in[1]=b[9], in[2]=b[10], in[3]=b[11], in[4]=b[12], in[5]=b[13], in[6]=b[14], in[7]=b[15], out=OrB2);
+    Or(a=OrB1, b=OrB2, out=preZRB);
+    Not(in=preZRB, out=zrB);
+
+    Mux(a=optSignBit, b=false, sel=zrA, out=signBit1);
+    Mux(a=optSignBit, b=false, sel=zrB, out=signBit2);
+    And(a=signBit1, b=signBit2, out=signBit);
+
+
+    And16(a[0..14]=tempOut, a[15]=signBit, b=true, out=out);
+}

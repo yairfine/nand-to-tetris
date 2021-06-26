@@ -1,0 +1,53 @@
+class Node
+{
+    field int data; // the data that stored in the node
+    field Node next; // Node that this node points to
+
+    /*
+     * constructor, get data x and next node. return new Node.
+     */
+    constructor Node new(int x, Node nextNode)
+    {
+        let data=x;
+        let next = nextNode;
+        return this;
+    }
+
+    /*
+     * set the field next to nextNode
+     */
+    method void setNext(Node nextNode)
+    {
+        let next = nextNode;
+        return;
+    }
+
+    /*
+     * getter for data field
+     */
+    method int getData()
+    {
+        return data;
+    }
+
+    /*
+     * getter for next field
+     */
+    method Node getNext()
+    {
+        return next;
+    }
+
+    /*
+     * destructor. free the memory of the chain which starts in this
+     */
+    method void dispose()
+    {
+        if (~(next = null)) {
+            do next.dispose();
+        }
+          do Memory.deAlloc(this);
+          return;
+    }
+
+}

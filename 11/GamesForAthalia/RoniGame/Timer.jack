@@ -1,0 +1,59 @@
+/**a class representing the timer object of the game*/
+class Timer {
+    field int bars, xL, yL, xR, yR, fd, bw, tw, th;
+
+    /**the timer constuctor sets the timer according to the current round*/
+    constructor Timer new() {
+        let xL = 3; // top left x
+        let yL = 239;  // top left y 
+        let tw = 103; // timer width
+        let th = 14; // timer height
+        let xR = xL + tw; // bottom right x
+        let yR = yL + th; // bottom right y
+        let fd = 1; // frame delta
+        let bw = 1; // bar width
+        let bars = 0;
+        do drawTimer();
+        return this;
+   }
+    
+    /** Disposes this timer.*/
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+    // Draw the timer:
+    method void drawTimer() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(xL, yL, xR, yR);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(xL + fd, yL + fd, xR - fd, yR - fd);
+        return;
+    }
+
+    // Update the number every few rounds with another bar:
+    method void updateTimer(int time_counter,int total_time) {
+        if (mod(time_counter, (Math.divide(total_time, 100))) = 0) {
+            let bars = bars + 1;
+            do Screen.setColor(true);
+            do Screen.drawRectangle(xL + fd + (bars * bw), yL + fd, xL + fd + (bars + 1) * bw, yR - fd);
+        }
+        return;
+    }
+
+    // Mod (%) action.
+    method int mod(int x, int y) {
+        var int q;
+        let q = Math.divide(x, y);
+        return x - (q * y);
+    }
+
+    // Reset the timer to an empty timebar each beginning of a new game loop:
+    method void resetTimer() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(xL + fd, yL + fd, xR - fd, yR - fd);
+        let bars = 0;
+        return;
+    }
+}

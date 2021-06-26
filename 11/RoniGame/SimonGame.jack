@@ -1,0 +1,242 @@
+/**
+ * Implements the Simon Memory Game.
+ */
+class SimonGame {
+   field Array Shapes;  // All the memory shpaes of this game
+   field Array Shape_Seq_Memory;
+   field Array Shape_Seq_User;
+   field int Shape_Amount;
+   field int Time_counter; // the time the user currently have
+   field int game_Length;
+   field Timer timeBar;
+   field int randomCounter;
+   
+
+   /** Constructs a new Simon Game. */
+   constructor SimonGame new(int game_Length_user) {
+      var int i, init_Location;
+      let game_Length = game_Length_user;
+      let Shape_Seq_Memory = Array.new(game_Length);
+      let Shape_Seq_User = Array.new(game_Length);
+      let Shape_Amount = 5;
+      let Shapes = Array.new(Shape_Amount);
+      let init_Location = 3984;
+      let i = 0; 
+      do Output.moveCursor(20, 10);
+      while (i < Shape_Amount) {   
+          let Shapes[i] = Shape.new(init_Location, i);
+          let i = i + 1;
+      }
+      let randomCounter = 1;
+      return this;
+   }
+
+   /** Creates the Landing page - the first page of the game (before it starts). */
+   method void LandingPage() {
+      var int Landing_key;
+      var boolean S_preesed;
+      var Board board;
+      let S_preesed = false;
+      do Output.moveCursor(1, 19);
+      do Output.printString("~~~ Simon Memory Game ~~~");
+      do Output.moveCursor(2, 15);
+      do Output.printString("Let's see how well you remember...");
+      do Output.moveCursor(20, 6);
+      do Output.printString("Press: 'S' in order to start, 'Q' to exit the game");
+      
+      // Waits for the user's selection - either to start the game ('S') or to quit ('Q').
+      while (true) {
+         let randomCounter = randomCounter + 1;
+         let Landing_key = Keyboard.keyPressed();
+         if (Landing_key = 83) {  // S pressed
+            let S_preesed = true;
+         }
+         if ((Landing_key = 0) & S_preesed) {
+            do Screen.clearScreen();
+            do Board.buildBoard();
+            do Random.setRandomNum(randomCounter);
+            let timeBar = Timer.new();
+            do run();
+            return;
+         }
+         if (Landing_key = 81) {  // Q pressed
+            do Screen.clearScreen();
+            return;
+         }
+      }
+       return;
+   } 
+
+   /** Disposes of this game. */
+   method void dispose() {
+      var int i,Length;
+      var Shape temp_shape;
+      let i = 0;
+      while (i < Shape_Amount) {   
+         let temp_shape=Shapes[i];
+         do temp_shape.dispose();
+         let i = i + 1;
+      }
+      do Shape_Seq_Memory.dispose();
+      do Shape_Seq_User.dispose();
+      do Shapes.dispose();
+      do Memory.deAlloc(this);
+      do timeBar.dispose(); // dispose the game timer
+      return;
+   }
+
+   /** Runs the Simon game: handles the user's inputs for 
+   shapes sequences and randomize the next shpe in the sequence. */
+   method void run() {
+      var Random rnd;
+      var char key;  // The key currently pressed by the user.
+      var boolean Game_Ended,Game_Lost;
+      var int i, i_temp, j;
+      var boolean key_relesed;
+      var boolean WrongSequence;
+      var boolean Finish_sequence;
+      var int SolveTime;
+      var int random_num;
+      var int current;
+      var Shape temp_shape;
+      var int shapeKeyPress;
+      var int delayBetweenRounds, delayBetwwenShapes, delayShapeTime, SolveTimeFactor;
+      var int timeCounter, bars;
+
+      //Seting up delay times of the project
+      let SolveTimeFactor = 500;
+      let delayBetweenRounds = 500;
+      let delayBetwwenShapes = 300;
+      let delayShapeTime = 600;
+
+      let Game_Ended = false;
+      let Game_Lost = false;
+      let i = 0;
+
+      while ((~Game_Ended) & (~Game_Lost)) {  // The main game loop
+         do Output.moveCursor(4, 25);
+         do Output.printString("Round: ");
+         do Output.printInt((i + 1));
+
+         // Reset the timerbar after each game loop.
+         do timeBar.resetTimer();
+
+         // Get a new random number for the shapes sequence:
+         let random_num = Random.randomRange(10000);
+         let random_num = timeBar.mod(random_num, 5);
+         let Shape_Seq_Memory[i] = random_num;
+         let i_temp = 0;
+
+         while (i_temp < (i + 1)) {  // Display all the shapes in the memory Sequence
+            let current = Shape_Seq_Memory[i_temp];
+            let temp_shape = Shapes[current];
+            do temp_shape.draw();
+            do Sys.wait(delayShapeTime);  // Time a shape is displayed.
+            do temp_shape.erase();
+            do Sys.wait(delayBetwwenShapes);  // Delays Between shapes.
+            let i_temp = i_temp + 1;
+         }
+
+         // User input stage:
+         let j = 0; 
+         let Time_counter = 0;
+         let Shape_Seq_User = Array.new(game_Length); //reset the user input Sequence
+         let SolveTime = (i + 1) * SolveTimeFactor; // set the time the user has to replay
+         let key_relesed = true;
+         let WrongSequence = false;
+         let Finish_sequence = false;
+
+         // User input while loop:
+         while ((Time_counter < SolveTime) & (~WrongSequence) & (~Finish_sequence)) {
+            do timeBar.updateTimer(Time_counter, SolveTime);
+
+            let key = Keyboard.keyPressed();
+            if (~(key = 0) & key_relesed){  // Insert the key to the Shape_Seq_User
+               let key_relesed = false;
+               let Shape_Seq_User[j] = getShapeKeyPress(key);     
+               if (~(Shape_Seq_User[j] = Shape_Seq_Memory[j])) {  // Wrong sequence input
+                   let WrongSequence = true;
+                   let delayBetweenRounds = 0;
+               }
+               else {  // Display shape
+                  let current = Shape_Seq_User[j];
+                  let temp_shape = Shapes[current];
+                  do temp_shape.draw();
+                  do Sys.wait(delayBetwwenShapes);  // delays the next movement
+                  do temp_shape.erase();
+               }
+            let j = j + 1;
+            }
+
+            // Make sure user relesed the last key press
+            if (key = 0) { let key_relesed = true; }
+            if ((j - 1) = i) { let Finish_sequence = true; }
+            let Time_counter = Time_counter + 1;
+            do Sys.wait(5);  // Delays the next movement
+         
+         }  // END user input while loop
+         // Set random number every 5 rounds:
+         if ((timeBar.mod((i + 1), 5)) = 0) {
+            do Random.setRandomNum(randomCounter + i + Time_counter);
+         }
+         
+         if ((~Finish_sequence) | WrongSequence) {  // User input is Wrong
+            let Game_Lost = true;  
+         }
+         let i = i + 1;  // Next shape to sequence
+         
+         if (i = game_Length) {
+            let Game_Ended = true;
+         }
+         do Sys.wait(delayBetweenRounds);  // Delays between Rounds
+      } // End main game while Loop
+      // Deside if the player has won
+      do Screen.clearScreen();
+      if (Game_Ended) { // Player Won
+         do Output.moveCursor(15, 15);
+         do Output.printString("~~~ Congratulations! GAME WON! ~~~");
+      }
+      else { // Player Lost
+         do Output.moveCursor(1, 20);
+         do Output.printString("~~~ SORRY, GAME LOST ~~~");
+         do Output.moveCursor(10,20);
+         do Output.printString("The correct sequense is:");
+         // Display the right sequence
+         do diplayLostSequence(i);
+      }
+      //Display score
+      do Output.moveCursor(3, 23);
+      do Output.printString("Your score is: ");
+      do Output.printInt((i-1));
+
+     return;
+   } 
+   
+   /** Get the right shape according to the key pressed by the user. */
+   method int getShapeKeyPress(int key) {
+      if (key = 49){ return 0; }
+      if (key = 50){ return 1; }
+      if (key = 51){ return 2; }
+      if (key = 52){ return 3; }
+      if (key = 53){ return 4; }
+      
+      return -1;
+   }
+
+   /** Display the right shapes sequence when the player has lost. */
+   method void diplayLostSequence(int i) {
+      var int j;
+      var Shape tempShape;
+      var int init_Location;
+      let init_Location = 4000;
+      let j = 0;
+      while (j < i) {
+         let tempShape = Shape.new(init_Location, Shape_Seq_Memory[j]);
+         do tempShape.drawSmall(init_Location);
+         let init_Location = init_Location + 2;
+         do tempShape.dispose();
+         let j = j + 1;
+      }
+      return;
+   }
+}

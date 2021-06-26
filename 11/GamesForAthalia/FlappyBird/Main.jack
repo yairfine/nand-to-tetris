@@ -1,0 +1,28 @@
+class Main {
+		/** Main function. */
+    function void main() {
+		var Game oneGame;
+		var int loop;
+		var boolean start;
+		var Welcome welcome;
+		let welcome = Welcome.new();
+		do welcome.display();
+		let start = welcome.begin();
+		while (start)
+		{
+			do Screen.clearScreen();
+			let oneGame = Game.new();
+			do oneGame.run();
+			do oneGame.dispose();
+			do Screen.clearScreen();
+			do welcome.display();
+			let start = welcome.begin();
+			if (~start)
+			{
+				return;
+			}
+		}
+		do welcome.dispose();
+		return;
+	}
+}

@@ -1,0 +1,71 @@
+//This class represents a bubble object
+class Bubble {
+	field int x, y, Y_MIN;
+	field int speed, rad;
+    field bool done;
+	
+	/** Constructs a new Bubble object. */
+	constructor Bubble new(int _x, int _y, int _frame){
+		
+        let Y_MIN = _frame;
+		let speed = 3;
+		let rad = 4;
+        let done = false;
+		let x = _x;
+		let y = _y;
+		return this;
+	}
+	
+    //Moves the bubble
+    method void move()
+	{	
+        if(y < Y_MIN) {
+            let done = true;
+            do erase();
+        } else {
+            let y = y - speed;
+        }
+		return;
+	}
+	
+    //Draws the bubble
+	method void erase(){
+        do Screen.setColor(false);
+		do Screen.drawCircle(x, y, rad + speed);
+        return;
+    }
+        
+    //Draws the bubble
+	method void draw(){
+        if (done) {
+            return;
+        }
+        do erase();
+        do Screen.setColor(true);
+		do Screen.drawCircle(x, y, rad);
+		return;
+	}
+	
+    //Returns the x location of the bubble 
+	method int getx()
+	{
+		return x;
+	}
+	
+    //Returns the y location of the bubble 
+	method int gety()
+	{
+		return y;
+	}
+    
+    // Returns if the bubble is done    
+    method bool is_done(){
+        return done;
+    }
+    
+    // Deletes the object
+    method void delete() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

@@ -1,0 +1,45 @@
+/**  a class implementing random number*/
+class Random {
+    // controls the randomness of the game, for the steps, arricades and .    
+    static int random_num;     // a random number  for the random function
+    static int prime;           // a prime number for the random function
+    
+    /**  
+    initiates the numbers for the random function 
+    .*/
+    function void init_random(int right_border, int left_border){
+        let prime = 1439;
+        let random_num = (left_border+right_border)/3;
+        return;
+    }
+    
+    /**  
+    returns a pseudo-random number between min and max 
+    param int min: the lower bound for the number  
+    param int max: the upper bound for the number  
+    .*/
+    function int get_random(int min, int max){
+        var int d;
+        var int r;
+        var int memory_dig, memory_num;
+        let d = max - min; 
+    
+        // get a random digit
+        let memory_num = Memory.peek(0);
+        let memory_dig = memory_num - (10*(memory_num/10));
+
+
+        // change random to be a number in the range 0-1000;
+        let random_num = random_num + (prime*(memory_dig+1));  //adding 1 for case dig=0
+        while (random_num>1000){
+            let random_num= random_num -1000;
+        }
+
+        let r=random_num;
+
+        let r=r-(d*(r/d));    //suite r to  the range 0-d
+
+
+        return min+r;
+    }
+}

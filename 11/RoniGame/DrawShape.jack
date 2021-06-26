@@ -1,0 +1,176 @@
+/** Implements the Shape drawing of the different kinds of shapes in the game. */
+class DrawShape {
+    static int memAddress; 
+    
+    // Draw shape 0 - Circle
+    function void drawCircle() {
+        do Screen.setColor(true);
+        do Screen.drawCircle(256, 128, 50);
+        do Screen.setColor(false);
+        do Screen.drawCircle(256, 128, 49);
+        return;
+    }
+
+    /** Draw shape 0 - Circle */
+	function void drawCircleSymbol(int location) {
+		var int memAddress;
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, 4080);
+		do Memory.poke(memAddress + 32, 8184);
+		do Memory.poke(memAddress + 64, 14364);
+		do Memory.poke(memAddress + 96, 28686);
+		do Memory.poke(memAddress + 128, -8185);
+		do Memory.poke(memAddress + 160, -16381);
+		do Memory.poke(memAddress + 192, -16381);
+		do Memory.poke(memAddress + 224, -16381);
+		do Memory.poke(memAddress + 256, -16381);
+		do Memory.poke(memAddress + 288, 3);
+		do Memory.poke(memAddress + 320, 3);
+		do Memory.poke(memAddress + 352, 24583);
+		do Memory.poke(memAddress + 384, 28686);
+		do Memory.poke(memAddress + 416, 14364);
+		do Memory.poke(memAddress + 448, 8184);
+		do Memory.poke(memAddress + 480, 4080);
+		return;
+	}
+
+    // Draw shape 1 - Square
+    function void drawSquare() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(210, 80, 210 + 92, 80 + 92);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(210 + 1, 80 + 1, 210 + 92 - 1, 80 + 92 - 1);
+        return;
+    }
+
+     /** Draw shape 1 - Square */
+    function void drawSquareSymbol(int location) {
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, -1);
+		do Memory.poke(memAddress + 32, -32767);
+		do Memory.poke(memAddress + 64, -32767);
+		do Memory.poke(memAddress + 96, -32767);
+		do Memory.poke(memAddress + 128, -32767);
+		do Memory.poke(memAddress + 160, -32767);
+		do Memory.poke(memAddress + 192, -32767);
+		do Memory.poke(memAddress + 224, -32767);
+		do Memory.poke(memAddress + 256, -32767);
+		do Memory.poke(memAddress + 288, -32767);
+		do Memory.poke(memAddress + 320, -32767);
+		do Memory.poke(memAddress + 352, -32767);
+		do Memory.poke(memAddress + 384, -32767);
+		do Memory.poke(memAddress + 416, -32767);
+		do Memory.poke(memAddress + 448, -32767);
+		do Memory.poke(memAddress + 480, -1);
+		return;
+	}
+
+    // Draw shape 2 - Rhombus
+    function void drawRhombus() {
+        do Screen.setColor(true);
+        do Screen.drawLine(256, 75, 203, 128);
+        do Screen.drawLine(256, 75, 309, 128);
+        do Screen.drawLine(203, 128, 256, 181);
+        do Screen.drawLine(309, 128, 256, 181);
+        return;
+    }
+
+    /** Draw shape 2 - Rhombus */
+    function void drawRhombusSymbol(int location) {
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, 384);
+		do Memory.poke(memAddress + 32, 576);
+		do Memory.poke(memAddress + 64, 1056);
+		do Memory.poke(memAddress + 96, 2064);
+		do Memory.poke(memAddress + 128, 4104);
+		do Memory.poke(memAddress + 160, 8196);
+		do Memory.poke(memAddress + 192, 16386);
+		do Memory.poke(memAddress + 224, -32767);
+		do Memory.poke(memAddress + 256, -32767);
+		do Memory.poke(memAddress + 288, 16386);
+		do Memory.poke(memAddress + 320, 8196);
+		do Memory.poke(memAddress + 352, 4104);
+		do Memory.poke(memAddress + 384, 2064);
+		do Memory.poke(memAddress + 416, 1056);
+		do Memory.poke(memAddress + 448, 576);
+		do Memory.poke(memAddress + 480, 384);
+		return;
+	}
+
+    // Draw shape 3 - Plus
+    function void drawPlus() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(250, 75, 262, 181);
+        do Screen.setColor(true);
+        do Screen.drawRectangle(203, 122, 309, 134);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(250 + 1, 75 + 1, 262 - 1, 181 - 1);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(203 + 1, 122 + 1, 309 - 1, 134 - 1);
+        return;
+    }
+    
+    /** Draw shape 3 - Plus */
+    function void drawPlusSymbol(int location) {
+		var int memAddress;
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, 960);
+		do Memory.poke(memAddress + 32, 576);
+		do Memory.poke(memAddress + 64, 576);
+		do Memory.poke(memAddress + 96, 576);
+		do Memory.poke(memAddress + 128, 576);
+		do Memory.poke(memAddress + 160, 576);
+		do Memory.poke(memAddress + 192, -385);
+		do Memory.poke(memAddress + 224, -32767);
+		do Memory.poke(memAddress + 256, -32767);
+		do Memory.poke(memAddress + 288, -385);
+		do Memory.poke(memAddress + 320, 576);
+		do Memory.poke(memAddress + 352, 576);
+		do Memory.poke(memAddress + 384, 576);
+		do Memory.poke(memAddress + 416, 576);
+		do Memory.poke(memAddress + 448, 576);
+		do Memory.poke(memAddress + 480, 960);
+		return;
+	}
+
+
+    // Draw shape 4 - Triangle
+    function void drawTriangle() {
+        do Screen.setColor(true);
+        do Screen.drawLine(256, 75, 203, 181);
+        do Screen.drawLine(256, 75, 309, 181);
+        do Screen.drawLine(203, 181, 309, 181);
+        return;
+    }
+
+
+    /** Draw shape 4 - Triangle */
+    function void drawTriangleSymbol(int location) {
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, 384);
+		do Memory.poke(memAddress + 32, 384);
+		do Memory.poke(memAddress + 64, 576);
+		do Memory.poke(memAddress + 96, 576);
+		do Memory.poke(memAddress + 128, 1056);
+		do Memory.poke(memAddress + 160, 1056);
+		do Memory.poke(memAddress + 192, 2064);
+		do Memory.poke(memAddress + 224, 2064);
+		do Memory.poke(memAddress + 256, 4104);
+		do Memory.poke(memAddress + 288, 4104);
+		do Memory.poke(memAddress + 320, 8196);
+		do Memory.poke(memAddress + 352, 8196);
+		do Memory.poke(memAddress + 384, 16386);
+		do Memory.poke(memAddress + 416, 16386);
+		do Memory.poke(memAddress + 448, -32767);
+		do Memory.poke(memAddress + 480, -1);
+		return;
+	}
+	
+    // Erase a shape in location
+	function void eraseShapeInLocation() {
+		// Current sequence frame:
+        do Screen.setColor(false);
+        do Screen.drawRectangle(198 + 2, 70 + 2, 198 + 116 - 2, 70 + 116 - 2);
+		return;
+	}
+}

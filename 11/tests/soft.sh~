@@ -1,0 +1,9 @@
+#!/bin/sh
+ln -s ~h/OS/Array.vm Array.vm
+ln -s ~h/OS/Screen.vm Screen.vm
+ln -s ~h/OS/Keyboard.vm Keyboard.vm
+ln -s ~h/OS/Math.vm Math.vm
+ln -s ~h/OS/Memory.vm Memory.vm
+ln -s ~h/OS/Output.vm Output.vm
+ln -s ~h/OS/String.vm String.vm
+ln -s ~h/OS/Sys.vm Sys.vm      

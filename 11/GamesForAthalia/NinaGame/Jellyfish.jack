@@ -1,0 +1,115 @@
+// The class represents a jellyfish object
+class Jellyfish {
+    
+	field int x, y, SCREEN_ROWS, SCREEN_COLS, X_MAX, X_MIN, Y_MAX, Y_MIN, FRAME;
+	field int speed;
+	field int strike_countdown, CYCLE_TIME;
+    field bool escape, dead, h_dir, v_dir;
+    
+	/** Constructs a new Bubble object. */
+	constructor Jellyfish new(int _x, int _y, int _FRAME)
+    {
+        let CYCLE_TIME = 30;
+        let SCREEN_COLS = 512;
+		let SCREEN_ROWS = 256;
+        let FRAME = _FRAME;
+        let X_MAX = SCREEN_COLS - FRAME;
+        let Y_MAX = SCREEN_ROWS - FRAME;
+        let X_MIN = FRAME;
+        let Y_MIN = FRAME;
+		
+        let speed = 3;   
+        let strike_countdown = CYCLE_TIME;
+        let dead = false;
+        let escape = false;
+		
+        let h_dir = false; // left
+        let v_dir = false; // down
+		let x = _x;
+		let y = _y;
+		return this;
+	}
+	
+    //Sends a new strike from the jellyfish location
+    method Strike strike()
+    {
+        if (strike_countdown = 0) {
+            let strike_countdown = CYCLE_TIME;
+            return Strike.new(x,y, FRAME);
+        }
+        let strike_countdown = strike_countdown - 1;
+        return null;
+    }
+    
+	method void move()
+	{	
+        if (escape) {
+            let y = y - speed;
+            if (y < Y_MIN) {
+                let dead = true;
+                do Drawing.erase_jellyfish(x,y);
+            }
+        } else {
+            if ((x > (X_MAX)) | (x < X_MIN)){
+                let h_dir = ~h_dir;
+            }
+            if ((y > (Y_MAX)) | (y < Y_MIN)){
+                let v_dir = ~v_dir;
+            } 
+            
+            // vertical move
+            if (v_dir){
+                let y = y - speed;
+            } else {
+                let y = y + speed;
+            }
+            
+            // horizontal move
+            if (h_dir){
+                let x = x + speed;
+            } else {
+                let x = x - speed;
+            }
+        }
+        return;
+    }
+    
+	//Sets the jellyfish into escape mode
+    method void set_escape() {
+        let escape = true;
+        return;
+    }
+    
+    // Returns if the jellyfish is dead
+    method bool is_dead() {
+        return dead;
+    }
+    
+    //Draws the jellyfish
+	method void draw(){
+        if (dead) {
+            return;
+        }
+		do Screen.setColor(true);
+		do Drawing.draw_jellyfish(x, y);
+		return;
+	}
+	
+    //Return the x location of the jellyfish
+	method int getx()
+	{
+		return x;
+	}
+	
+    //Return the y location of the jellyfish
+	method int gety()
+	{
+		return y;
+	}
+  
+    // Deletes the object
+    method void delete() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

@@ -1,0 +1,45 @@
+/** Implements a graphical Shape in the game. */
+class Shape {
+
+   field int Location; // screen location of the Shape's top-left corner
+   field int ShapeIndex; // The index of the Shape to be painted
+
+   /** Constructs a new Shape with a given location and the Shape index. */
+   constructor Shape new(int ULocation, int ShapeIndex_user) {
+      let Location = ULocation;
+      let ShapeIndex = ShapeIndex_user;
+      return this;
+   }
+
+   /** Disposes this Shape.*/
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+   /** Draws the Shape on the screen. */
+   method void draw() {
+      if (ShapeIndex = 0){ do DrawShape.drawCircle(); }
+      if (ShapeIndex = 1){ do DrawShape.drawSquare(); }
+      if (ShapeIndex = 2){ do DrawShape.drawRhombus(); }
+      if (ShapeIndex = 3){ do DrawShape.drawPlus(); }
+      if (ShapeIndex = 4){ do DrawShape.drawTriangle(); }
+      return;
+   }
+
+   /** Draws the small Shape on the screen. */
+   method void drawSmall(int location) {
+      if (ShapeIndex = 0){ do DrawShape.drawCircleSymbol(location); }
+      if (ShapeIndex = 1){ do DrawShape.drawSquareSymbol(location); }
+      if (ShapeIndex = 2){ do DrawShape.drawRhombusSymbol(location); }
+      if (ShapeIndex = 3){ do DrawShape.drawPlusSymbol(location); }
+      if (ShapeIndex = 4){ do DrawShape.drawTriangleSymbol(location); }
+      return;
+   }
+
+   /** Erases the Shape from the screen. */
+   method void erase() {
+      do DrawShape.eraseShapeInLocation();
+      return;
+   }
+}

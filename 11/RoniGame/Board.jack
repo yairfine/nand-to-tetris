@@ -1,0 +1,51 @@
+/** SetUps the basic board layout of the game. */
+class Board {
+
+    // Builds the game board.
+    function void buildBoard() { 
+        // Frame:
+        do Screen.setColor(true);
+        do Screen.drawRectangle(0, 0, 511, 255);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(1, 1, 510, 254);
+        
+        // Game title:
+        do Output.moveCursor(1, 1);
+        do Output.printString("Welcome to the Simon Game");
+        
+        // Timer title:
+        do Output.moveCursor(20, 1);
+        do Output.printString("Timer:");
+        
+        // Current sequence title:
+        do Output.moveCursor(5, 25);
+        do Output.printString("Sequence:");
+        
+        // Current sequence frame:
+        do Screen.setColor(true);
+        do Screen.drawRectangle(198, 70, 198 + 116, 70 + 116);
+        do Screen.setColor(false);
+        do Screen.drawRectangle(198 + 1, 70 + 1, 198 + 116 - 1, 70 + 116 - 1);
+        
+        // Shape legend:
+        do Output.moveCursor(2, 56);
+        do Output.printString("Legend:");  // Title
+        do Output.moveCursor(4, 56);
+        do Output.printString("1 -");  // Circle
+        do DrawShape.drawCircleSymbol(1406);
+        do Output.moveCursor(6, 56);
+        do Output.printString("2 -");  // Square
+        do DrawShape.drawSquareSymbol(2142);
+        do Output.moveCursor(8, 56);
+        do Output.printString("3 -");  // Rhombus
+        do DrawShape.drawRhombusSymbol(2750);
+        do Output.moveCursor(10, 56);
+        do Output.printString("4 -");  // Plus
+        do DrawShape.drawPlusSymbol(3518);
+        do Output.moveCursor(12, 56);
+        do Output.printString("5 -");  // Triangle
+        do DrawShape.drawTriangleSymbol(4190);
+        
+        return;
+     }
+}

@@ -1,0 +1,77 @@
+// This class represents a strike objects 
+class Strike {
+	field int x, y, Y_MAX, SCREEN_ROWS;
+	field int speed;
+    field bool done;
+	
+	/** Constructs a new Strike object. */
+	constructor Strike new(int _x, int _y, int _frame){
+        let SCREEN_ROWS = 256;
+        let Y_MAX = SCREEN_ROWS - _frame;
+        
+        let speed = 10;
+        let done = false;
+		let x = _x;
+		let y = _y;
+		return this;
+	}
+	
+    // Moves the strike
+	method void move()
+	{	
+        if(y > Y_MAX) {
+            let done = true;
+            do Drawing.erase_strike(x,y);
+        } else {
+            let y = y + speed;
+        }
+		return;
+	}
+	
+    //Draws the strike
+	method void draw(){
+        if (done) {
+            return;
+        }
+		do Drawing.draw_strike(x, y);
+		return;
+	}
+		
+    //Returns the x location of the strike 
+	method int getx()
+	{
+		return x;
+	}
+	
+    //Returns the y location of the strike 
+	method int gety()
+	{
+		return y;
+	}
+    
+    //Sets the strike as done
+    method void set_done(){
+        let done = true;
+        do erase();
+        return;
+    }
+    
+    // returns if the strike is done
+    method bool is_done(){
+        return done;
+    }
+    
+    // Erase the Strike
+	method void erase(){
+        do Drawing.erase_strike(x,y);
+        return;
+    }
+    
+    // Deletes the object
+    method void delete() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}
+
+	

@@ -1,0 +1,129 @@
+class Baricade{
+
+    field int x_coordinate; // the x coordinate of the baricade
+    field int prev_x_coordinate;
+    field int y_coordinate; // the base of the baricade
+    field int prev_y_coordinate;
+    field int hight; // the hight of the baricade
+    field int prev_hight;
+    static int hight_max; 
+    static int hight_min;
+    static int x_min;
+    static int x_max;
+
+
+
+
+    /** constructor for new baricade
+    param y: the base coordinate of the baricade.
+    */
+    constructor Baricade new (int y) {
+        let x_coordinate=0;
+        let hight = 0;
+        do rand_values();
+        let y_coordinate=y;
+        return this;
+    }
+    
+    /** set random values to x coordinate and hight according the baricades defined linmits */
+    method void rand_values(){
+        let hight=Random.get_random(hight_min,hight_max);
+        let x_coordinate=Random.get_random(x_min, x_max);
+        return;
+    }
+
+    /** set prev x_coordinate*/
+    method void set_prev_x(int prev_x){
+        let prev_x_coordinate=prev_x;
+        return;
+    }
+    
+
+    /** set y_coordinate*/
+    method void set_y(int new_y){
+        let y_coordinate=new_y;
+        return;
+    }
+
+    /** set prev y_coordinate*/
+    method void set_prev_y(int prev_y){
+        let prev_y_coordinate=prev_y;
+        return;
+    }
+
+
+    /** set prev hight*/
+    method void set_prev_hight(int prev_h){
+        let prev_hight = prev_h;
+        return;
+    }
+
+
+    /** get x_coordinate*/
+    method int get_x (){
+        return x_coordinate;
+    }
+    
+    /** get y_coordinate*/
+    method int get_y (){
+        return y_coordinate;
+    }
+
+    /** get hight*/
+    method int get_hight(){
+        return hight;
+    }
+    
+
+
+    /** erase the prev baricade location and draw it in the new location. */
+    method void draw(){
+
+        do Screen.setColor(false); //erasing
+        //erases the line
+        do Screen.drawLine(prev_x_coordinate, prev_y_coordinate, prev_x_coordinate, prev_y_coordinate-prev_hight); 
+
+        do Screen.setColor(true); //drawing again
+        do Screen.drawLine(x_coordinate, y_coordinate, x_coordinate, y_coordinate-hight); //draws the barricade
+    
+        return;
+    }
+
+    method Bool canPassBaricade(int prev_x, int prev_y, int cur_x, int cur_y, int radius){
+        var int y_avg;
+        let y_avg=((prev_y+cur_y)/2);
+        // if the ball pass the baricade buy its x coordinate
+        if (  ( ((prev_x + radius) < x_coordinate)  &  ~(x_coordinate > (cur_x + radius)) ) | 
+        ( ((cur_x - radius) < x_coordinate) & ~(x_coordinate > (prev_x - radius)) ) ){
+            // if  y coordinate avg of the ball is in the range of the baricade
+            if ( ( (y_avg+radius) > (y_coordinate - hight)) ){
+                return false;
+            }
+        }
+        return true;        
+    }
+
+    function void set_baricades_x_range(int min ,int max){
+        let x_min=min;
+        let x_max=max;
+        return;
+    }
+
+    
+    /**
+    set the range for the hight of the baricades.
+    param left: left border of the steps.
+    param right_b: right border of the steps.
+    */
+    function void set_hight_range(int min, int max){
+        let hight_min=min;
+        let hight_max=max;
+        return;
+    }
+
+
+    
+  
+
+
+}

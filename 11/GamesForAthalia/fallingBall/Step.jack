@@ -1,0 +1,159 @@
+class Step {
+    // implementation of a step in the game. describes its location and its hole.
+
+    static int left_border; // the left coordinate of the screen
+    static int right_border;  // the right coordinate of the screen
+    static int min_hole_width; // the minimal posiible width for hole
+    static int max_hole_width;  // the minimal posiible width for hole
+    
+    field int y; // the height of the step
+    field int prev_y; // the prev height of the step
+    field int hole_X1; // the right coordinate of the hall
+    field int hole_X2; // the left coordinate of the  hall
+    field Baricade baricade; // a baricades that on the step
+    field int prev_baricade_x; // used for remembering the location of the baricade before step was update 
+    
+    
+
+    /** 
+    constructor for step.
+    param height - the y coordinate of the step 
+    */
+    constructor Step new(int height){
+        var int hole_range;
+        let y=height;
+        let prev_y=height;
+        let hole_X1 = Random.get_random(left_border, (right_border-min_hole_width));
+        let hole_range=Math.min(max_hole_width, (right_border-hole_X1));
+        let hole_X2 =hole_X1+Random.get_random(min_hole_width, hole_range);
+        let baricade=Baricade.new(y);
+        
+        do give_baricade_values(); 
+        do baricade.set_prev_x(baricade.get_x());       
+        do baricade.set_prev_y(baricade.get_y());       
+        do baricade.set_prev_hight(baricade.get_hight());       
+        
+        return this;
+    }
+
+    /** placing baricade*/
+
+
+    /**  return the step height */
+    method int get_y(){
+        return y;
+    }
+    
+    /**  return the step height */
+    method Baricade get_baricade(){
+        return baricade;
+    }
+    
+    /**  return the step left coordinate of the hole */
+    method int get_hole_left(){
+        return hole_X1;
+    }
+
+    /**  return the step right coordinate of the hole */
+    method int get_hole_right(){
+        return hole_X2;
+    }
+
+    /**
+    change the y coordinate of the  according arise .
+    param arise: the number of pixel the step should go up.
+    */
+    method void move(int arise){
+        let prev_y=y;
+        let y=y-arise;
+        
+        //move baricade
+        do baricade.set_y(y);
+        do baricade.set_prev_y(prev_y);
+        return;
+    }
+
+
+
+    /**
+    update the step properties, should be called by game if the step height 
+    exceeded the game top border (after game used move()).
+    give the step a  given by game and new hole  rendom coordinates.
+    Does not change the prev_y since it already changed by move. 
+    param new_y: the new height of step.
+    */
+    method void update(int new_y){
+        //update step
+        var int hole_range;
+        let y=new_y;
+        let hole_X1 = Random.get_random(left_border, (right_border-min_hole_width));
+        let hole_range=Math.min(max_hole_width, (right_border-hole_X1));
+        let hole_X2 =hole_X1+Random.get_random(min_hole_width, hole_range);
+        
+        //update baricade
+        do baricade.set_prev_y(prev_y);
+        do baricade.set_y(y);
+        do give_baricade_values(); //
+       return;
+
+    }
+
+    /**  updates the baricads location on the step and hight. save in baricade the old location*/
+    method void give_baricade_values(){
+        do baricade.set_prev_x(baricade.get_x());
+        do baricade.set_prev_hight(baricade.get_hight());
+        
+        do baricade.rand_values();
+        while ((hole_X1 < baricade.get_x()) & (baricade.get_x() <hole_X2)){
+            do baricade.rand_values();
+        }
+
+        return;
+    }    
+   
+   
+    /** erase the prev step location and draw in the new location. */
+    method void draw(){
+
+        do Screen.setColor(false); //erasing
+        do Screen.drawLine(left_border, prev_y, right_border, prev_y); //erases the line
+
+        do Screen.setColor(true); //drawing again
+        do Screen.drawLine(left_border, y, hole_X1, y); //draws the line
+        do Screen.drawLine(hole_X2, y, right_border, y); //draws the line
+    
+        do baricade.draw();
+
+        return;
+    }
+
+
+
+
+
+    /**
+    set the right and left border of the step.
+    param left_b: left border.
+    param right_b: right border.
+    */
+    function void set_x_borders(int left_b, int right_b){
+        let left_border=left_b;
+        let right_border=right_b;
+        do Baricade.set_baricades_x_range(left_b,right_b);
+        return;
+
+    }
+
+    
+    /**
+    set the range for the width of the  ball.
+    param left_b: left border.
+    param right_b: right border.
+    */
+    function void set_holes_range(int min, int max){
+        let min_hole_width=min;
+        let max_hole_width=max;
+        return;
+    }
+
+}

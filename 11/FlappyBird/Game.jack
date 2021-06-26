@@ -1,0 +1,165 @@
+class Game
+{
+	field int lives;
+	field int points;
+	field Pillar pillar1, pillar2, pillar3, pillar4;
+	field Bird bird;
+	field String bar;
+	/** Construction for class Game. */
+	constructor Game new(){
+		let lives = 5;
+		let points = 0;
+		let bar = " FLAPPY BIRD                Score: 0         Lives:";
+		do Output.moveCursor(0,0);
+		do Output.printString(bar);
+		do Screen.setColor(true);
+		do Game.drawHeart(27);
+		do Game.drawHeart(28);
+		do Game.drawHeart(29);
+		do Game.drawHeart(30);
+		do Game.drawHeart(31);
+		do Screen.drawLine(0, 15, 511, 15);
+		let pillar1 = Pillar.new(110, false);
+		let pillar2 = Pillar.new2(105, true , 25);
+		let pillar3 = Pillar.new2(110, false , 50);
+		let pillar4 = Pillar.new2(100, true , 75);
+		let bird = Bird.new();
+		return this;
+	}
+		/** Resets the objects of this game. */
+	method void reset(){
+		do pillar1.reset(0);
+		do pillar2.reset(25);
+		do pillar3.reset(50);
+		do pillar4.reset(75);
+		do bird.reset();
+		return;
+	}
+	
+		/** Draws all the pillar. */
+	method void drawPillars(){
+		do pillar1.move();
+		do pillar2.move();
+		do pillar3.move();
+		do pillar4.move();
+		return;
+		}
+		
+	   /** Disposes this game. */
+    method void dispose() {
+		do pillar1.dispose();
+		do pillar2.dispose();
+		do pillar3.dispose();
+		do pillar4.dispose();
+		do bird.dispose();
+		do Memory.deAlloc(this);
+		return;
+   }
+		/** Checks it the bird hit a pillar or flew too high or too low. */
+	method boolean checkForCollisions(){
+		var int birdRow;
+		var boolean didCollideWith1, didCollideWith2, didCollideWith3, didCollideWith4, didCollideAny;
+		let birdRow = bird.getRow();
+		if ((birdRow > 241) | (birdRow < 17)) { // fix the bar if needed
+			do Output.moveCursor(0,0);
+			do Output.printString(bar);
+			do Output.moveCursor(0,36);
+			do Output.printInt(points);
+			do Screen.setColor(true);
+			do Screen.drawLine(0, 15, 511, 15);
+			return true;
+		}
+		//bird is out of the screen.
+		let didCollideWith1 = pillar1.didCollide(birdRow + 12, 48);
+		let didCollideWith2 = pillar2.didCollide(birdRow, 48);
+		let didCollideWith3 = pillar3.didCollide(birdRow + 12, 48);
+		let didCollideWith4 = pillar4.didCollide(birdRow, 48);
+		let didCollideAny = ((didCollideWith2 | didCollideWith1) | (didCollideWith3 | didCollideWith4));
+		return didCollideAny;
+   }
+
+		/** Runs the game. */
+	method void run(){
+		var int counter;
+		var char key;
+		var boolean collisionDetector;
+		var Welcome welcome;
+		var boolean startOver;
+		let key = 0;
+		while (~(key = 140)){
+	
+			let counter = counter + 1;
+			if (counter = 5)
+			{
+				let points = points + 1;
+				do Output.moveCursor(0,36);
+				do Output.printInt(points);
+				let counter = 0;
+			}
+			let key = Keyboard.keyPressed( );
+			do Sys.wait(75);
+			do bird.move(key);
+			do drawPillars();
+			if (key = 82){
+				let points = 0;
+				let lives = 5;
+				do Game.drawHeart(27);
+				do Game.drawHeart(28);
+				do Game.drawHeart(29);
+				do Game.drawHeart(30);
+				do Game.drawHeart(31);
+				do Output.moveCursor(0,0);
+				do Output.printString(bar);
+				do reset();
+			}
+			let collisionDetector = checkForCollisions();
+			if (collisionDetector){
+				do Sys.wait(400);
+				do reset();
+				let lives = lives - 1;
+				do Game.removeHeart((31 - lives));
+				if (lives < 1 )
+				{
+					return;
+				}
+			}
+		}
+		
+	
+		return;
+	}
+	
+		/** Draws a heart shape in a given location. */
+	function void drawHeart(int location)
+	{
+		var int memAddress;
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, 3168);
+		do Memory.poke(memAddress + 32, 7920);
+		do Memory.poke(memAddress + 64, 16376);
+		do Memory.poke(memAddress + 96, 16376);
+		do Memory.poke(memAddress + 128, 8176);
+		do Memory.poke(memAddress + 160, 4064);
+		do Memory.poke(memAddress + 192, 1984);
+		do Memory.poke(memAddress + 224, 896);
+		do Memory.poke(memAddress + 256, 256);
+		return;
+	}
+   
+		/** Removes a heart from a given location. */
+	function void removeHeart(int location)
+	{
+		var int memAddress;
+		let memAddress = 16384 + location;
+		do Memory.poke(memAddress + 0, 0);
+		do Memory.poke(memAddress + 32, 0);
+		do Memory.poke(memAddress + 64, 0);
+		do Memory.poke(memAddress + 96, 0);
+		do Memory.poke(memAddress + 128, 0);
+		do Memory.poke(memAddress + 160, 0);
+		do Memory.poke(memAddress + 192, 0);
+		do Memory.poke(memAddress + 224, 0);
+		do Memory.poke(memAddress + 256, 0);
+		return;
+	}
+}

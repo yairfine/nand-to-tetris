@@ -1,0 +1,286 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Screen.jack
+
+/**
+ * A library of functions for displaying graphics on the screen.
+ * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom)
+ * of 256 pixels each (indexed 0..255, left to right). The top left pixel on 
+ * the screen is indexed (0,0).
+ */
+class Screen {
+    static Array screen;
+    static int screen_length;
+    static boolean isBlack;
+    static Array masks;
+
+    /** Initializes the Screen. */
+    function void init() {
+        let screen = 16384;
+        let screen_length = 8192;
+
+        let masks = Array.new(16);
+
+        let masks[0] = 1;
+        let masks[1] = 2;
+        let masks[2] = 4;
+        let masks[3] = 8;
+        let masks[4] = 16;
+        let masks[5] = 32;
+        let masks[6] = 64;
+        let masks[7] = 128;
+        let masks[8] = 256;
+        let masks[9] = 512;
+        let masks[10] = 1024;
+        let masks[11] = 2048;
+        let masks[12] = 4096;
+        let masks[13] = 8192;
+        let masks[14] = 16384;
+        let masks[15] = ~32767;
+
+        let isBlack = true;
+
+        return;
+    }
+
+    /** Erases the entire screen. */
+    function void clearScreen() {
+        var int index;
+
+        let index = 0;
+        while (index < screen_length) {
+            let screen[index] = 0;
+            let index = index + 1;
+        }
+
+        return;
+    }
+
+    /** Sets the current color, to be used for all subsequent drawXXX commands.
+     *  Black is represented by true, white by false. */
+    function void setColor(boolean b) {
+        let isBlack = b;
+        return;
+    }
+
+    /** Draws the (x,y) pixel, using the current color. */
+    function void drawPixel(int x, int y) {
+        var int pixelAddr, pixelBitIndex, mask;
+
+        let pixelAddr = Screen.getStart(x, y);
+        let pixelBitIndex = x & 15;
+        let mask = masks[pixelBitIndex];
+
+        do Screen.updateSegment(pixelAddr, mask);
+
+        return;
+    }
+
+    /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+    function void drawLine(int x1, int y1, int x2, int y2) {
+        var int dx, dy, a, b, diff, minY, x, y;
+
+        let dx = Math.abs(x1 - x2);
+
+        if (y1 > y2) {
+            let dy = y1 - y2;
+            let minY = y2;
+        }
+        else {
+            let dy = y2 - y1;
+            let minY = y1;
+        }
+
+        if ((dx = 0) & (dy = 0)) {
+            do Screen.drawPixel(x1, y2);
+            return;
+        }
+        if (dx = 0) {
+            do Screen.drawVerticalLine(x1, y1, y2);
+            return;
+        }
+        if (dy = 0) {
+            do Screen.drawHorizontalLine(y1, x1, x2);
+            return;
+        }
+
+        let a = 0;
+        let b = 0;
+        let diff = 0;
+
+        while ((~(a > dx)) & (~(b > dy))) {
+            if (x1 < x2) {
+                let x = x1 + a;
+            }
+            else {
+                let x = x1 - a;
+            }
+            if (y1 < y2) {
+                let y = y1 + b;
+            }
+            else {
+                let y = y1 - b;
+            }
+            do Screen.drawPixel(x, y);
+
+            if (diff < 0) {
+                let a = a + 1;
+                let diff = diff + dy;
+            }
+            else {
+                let b = b + 1;
+                let diff = diff - dx;
+            }
+        }
+
+        return;
+    }
+
+    function void drawVerticalLine(int x, int y1, int y2) {
+        var int pixelAddr, pixelBitIndex, mask, start, height;
+
+        if (y1 > y2) {
+            let start = y2;
+            let height = y1 - y2 + 1;
+        }
+        else {
+            let start = y1;
+            let height = y2 - y1 + 1;
+        }
+
+        let pixelAddr = Screen.getStart(x, start);
+        let pixelBitIndex = x & 15;
+        let mask = masks[pixelBitIndex];
+
+        while (height > 0) {
+            do Screen.updateSegment(pixelAddr, mask);
+            let pixelAddr = pixelAddr + 32;
+            let height = height - 1;
+        }
+
+        return;
+    }
+
+    function void drawHorizontalLine(int y, int x1, int x2) {
+        var int pixelAddr, pixelBitIndex, mask, start, width, pixelToDrawNum;
+
+        if (x1 > x2) {
+            let start = x2;
+            let width = x1 - x2 + 1;
+        }
+        else {
+            let start = x1;
+            let width = x2 - x1 + 1;
+        }
+
+        let pixelAddr = Screen.getStart(start, y);
+        let pixelBitIndex = start & 15;
+        let pixelToDrawNum = Math.min(16 - pixelBitIndex, width);
+
+        while (width > 0) {
+            let width = width - pixelToDrawNum;
+
+            let mask = 0;
+            while (pixelToDrawNum > 0) {
+                let mask = mask + masks[pixelBitIndex];
+                let pixelBitIndex = pixelBitIndex + 1;
+                let pixelToDrawNum = pixelToDrawNum - 1;
+            }
+
+            do Screen.updateSegment(pixelAddr, mask);
+
+            let pixelAddr = pixelAddr + 1;
+            let pixelBitIndex = 0;
+            let pixelToDrawNum = Math.min(16, width);
+        }
+
+        return;
+    }
+
+    /** Draws a filled rectangle whose top left corner is (x1, y1)
+     * and bottom right corner is (x2,y2), using the current color. */
+    function void drawRectangle(int x1, int y1, int x2, int y2) {
+        var int pixelAddr, pixelBitIndex, mask, pixelToDrawNum;
+        var int startX, startY, width, height, i, offset;
+
+        let width = Math.abs(x1 - x2) + 1;
+        let height = Math.abs(y1 - y2) + 1;
+        let startX = Math.min(x1, x2);
+        let startY = Math.min(y1, y2);
+
+        let pixelAddr = Screen.getStart(startX, startY);
+        let pixelBitIndex = startX & 15;
+        let pixelToDrawNum = Math.min(16 - pixelBitIndex, width);
+
+        while (width > 0) {
+            let width = width - pixelToDrawNum;
+
+            let mask = 0;
+            while (pixelToDrawNum > 0) {
+                let mask = mask + masks[pixelBitIndex];
+                let pixelBitIndex = pixelBitIndex + 1;
+                let pixelToDrawNum = pixelToDrawNum - 1;
+            }
+
+            let i = 0;
+            let offset = pixelAddr;
+            while (i < height) {
+                do Screen.updateSegment(offset, mask);
+                let offset = offset + 32;
+                let i = i + 1;
+            }
+
+            let pixelAddr = pixelAddr + 1;
+            let pixelBitIndex = 0;
+            let pixelToDrawNum = Math.min(16, width);
+        }
+
+        return;
+    }
+
+    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    function void drawCircle(int x, int y, int r) {
+        var int dy, r2, dy2, offset;
+
+        let r = Math.min(r, 181);
+        let r2 = Math.multiply(r, r);
+
+        let dy = -r;
+        let y = y + dy;
+        while (~(dy > r)) {
+            let dy2 = Math.multiply(dy, dy);
+            let offset = Math.sqrt(r2 - dy2);
+
+            do Screen.drawLine((x - offset), y, (x + offset), y);
+            let y = y + 1;
+            let dy = dy + 1;
+        }
+
+        return;
+    }
+
+    function int getStart(int x, int y) {
+        var int pixelAddr;
+
+        let pixelAddr = y + y; // pixelAddr = 2y
+        let pixelAddr = pixelAddr + pixelAddr; // pixelAddr = 4y
+        let pixelAddr = pixelAddr + pixelAddr; // pixelAddr = 8y
+        let pixelAddr = pixelAddr + pixelAddr; // pixelAddr = 16y
+        let pixelAddr = pixelAddr + pixelAddr; // pixelAddr = 32y
+        let pixelAddr = pixelAddr + (x / 16); // pixelAddr = 32y + x/16
+
+        return pixelAddr;
+    }
+
+    function void updateSegment(int addr, int mask) {
+        if (isBlack) {
+            let screen[addr] = (screen[addr] | mask);
+        }
+        else {
+            let screen[addr] = (screen[addr] & (~mask));
+        }
+
+        return;
+    }
+}

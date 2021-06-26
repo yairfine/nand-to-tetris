@@ -1,0 +1,68 @@
+// This class represents a fish object
+class Fish {
+    
+	field int x, y, FRAME, SCREEN_COLS;
+	field int speed; 
+    field bool direction;
+	
+	/** Constructs a new Fish object. */
+	constructor Fish new(int _x, int _y, int _frame)
+    {
+        let SCREEN_COLS = 512;
+        let FRAME = _frame;
+		let speed = 10;
+		let x = _x;
+		let y = _y;
+        let direction = true;
+		return this;
+	}
+	
+    // Moves the fish to the right
+	method void move_right()
+	{	
+        if (x < (SCREEN_COLS - FRAME)){
+            let x = x + speed;
+        }
+		return;
+	}
+	
+    // Moves the fish to the left
+    method void move_left()
+	{	
+        if (x > FRAME){
+            let x = x - speed;
+        }
+		return;
+	}
+    
+    //Sends a bubble from the fish location
+    method Bubble bubble()
+    {
+        return Bubble.new(x,y,FRAME);
+    }
+    
+    //Draws the fish
+	method void draw(){
+		do Screen.setColor(true);
+		do Drawing.draw_fish(x, y);
+		return;
+	}
+    
+	//Returns the x location of the fish
+	method int getx()
+	{
+		return x;
+	}
+	
+	// Returns the y location of the fish
+	method int gety()
+	{
+		return y;
+	}
+    
+    // Deletes the object
+    method void delete() {
+        do Memory.deAlloc(this);
+        return;
+    }
+}

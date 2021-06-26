@@ -1,0 +1,93 @@
+/**  a program of the game falling ball*/
+class Main {
+
+    
+    function void main () {
+    
+        var boolean continue;
+        var int key, score, best_score;
+        do Main.waiting_to_begin();
+        let continue = true;
+        let best_score = 0;
+        while (continue){
+            let key = 0;
+            let score = Main.game();
+            do Screen.clearScreen();
+            do Output.moveCursor(9,12);
+            do Output.printString("Unfortunately, you lost. The Game is Over");
+            do Output.moveCursor(11,23);
+            if (score > best_score){
+                do Output.moveCursor(11,15);
+                do Output.printString("New best score! ");
+                let best_score = score;
+            }
+            do Output.printString("You're score is ");
+            do Output.printInt(score);
+            do Output.moveCursor(13,25);
+            do Output.printString("Best score: ");
+            do Output.printInt(best_score);
+            do Output.moveCursor(15,12);
+            do Output.printString("Press r to play again, or ESC to quit");
+            while (~(key = 82) & ~(key = 140)){ //wait for r or ESC
+                let key = Keyboard.keyPressed();
+            }
+            do Screen.clearScreen();
+            if (key = 140){ //key is ESC
+                let continue = false;
+                do Output.moveCursor(10,20);
+                do Output.printString("See you next time!");
+            }
+        }
+        do Sys.wait(500); 
+        return;
+        
+    }
+    
+    function int game(){
+        var int score;
+        var Game game; 
+        
+        // game size -----------------------
+        var int bottom, top, right, left, steps_num, counter;
+        let bottom = 250;
+        let top = 50;
+        let left = 50;
+        let right = 450;
+        let steps_num = 5;
+        let counter = 20; 
+        // --------------------------------
+                
+        let game = Game.new(bottom, top, right, left, steps_num, counter);
+        do Output.moveCursor(0,0);
+        do Output.printString("Score ");
+        let score = game.get_score();
+        do Output.printInt(score);
+        do game.print_board_frame();
+        while(~(game.is_game_over())){
+            do game.round(Keyboard.keyPressed());
+            if (~(score = game.get_score())){
+                let score = game.get_score();
+                do Output.moveCursor(0,7);
+                do Output.printInt(game.get_score());
+            }
+            do Sys.wait(1);
+        }
+        return game.get_score();
+    }
+
+    function void waiting_to_begin() {
+        var int x;
+        let x=0;
+        do Output.moveCursor(2,30);
+        do Output.printString("hello!");
+        do Output.moveCursor(5,22);
+        do Output.printString("press any key to start");
+        while (x=0){
+            let x=Keyboard.keyPressed();
+        }
+        do Screen.clearScreen();
+        return;
+    }
+
+    
+}

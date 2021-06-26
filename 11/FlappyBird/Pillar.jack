@@ -1,0 +1,118 @@
+class Pillar
+{
+	field int width; // same for every pillar
+	field int height; 
+	field int locX;
+	field int waiting; // this is used to delay the creatrion of a pillar
+	field boolean isUp;
+	
+		/** Constructor for calss Pillar. */
+	constructor Pillar new(int pillHeight, boolean isPilUp)
+	{
+		let height = pillHeight;
+		let width = 40;
+		let locX = 510;
+		let isUp = isPilUp;
+		let waiting = 0;
+		return this;
+	}
+	
+			/** Constructor for calss Pillar. */	
+		constructor Pillar new2(int pillHeight, boolean isPilUp, int waitingVal)
+	{
+		let height = pillHeight;
+		let width = 40;
+		let locX = 510;
+		let isUp = isPilUp;
+		let waiting = waitingVal;
+		return this;
+	}
+		/** Resets this pillar location to the right hand side of the secreen. */
+	method void reset(int waitingVal){
+		do Screen.setColor(false);
+		do draw();
+		let width = 40;
+		let locX = 510;
+		let waiting = waitingVal;	
+		return;
+	}
+			/** return true iff a square of 16X12 from the given location hit this Pillar. */
+	method boolean didCollide(int row, int col){
+		if ((locX > col)| ((locX + width) < (col - 12))){ return false;} // the pillar is to the left or to the right of the bird.
+		if (~(isUp)){
+			if ((238 - height) > row ){ // the pillar is bellow the bird.
+				return false;
+			}
+			return true;
+		}
+		
+		if ((height + 31) < row){ // the pillar is above the bird.
+			return false;		
+		}		
+		return true;
+	}
+	
+		/** Draws this pillar on the screen (relative to its location. */
+	method void draw(){
+		var int rightCorBigger, rightCor, locEdge;
+		let locEdge = locX - 5;
+		if (locEdge < 0){
+			let locEdge = 0;
+			}
+		if (locX < 0){
+			let locX = 0;
+			let width = width - 5;
+			if (width < 1){
+				let width = 40;
+				let locX = 510;
+				return;
+			}
+		}
+		let rightCor = locX + width; 
+		let rightCorBigger = rightCor + 5;
+		if (rightCorBigger > 511){
+			let rightCorBigger = 511;
+		}
+		if (rightCor > 511){
+			let rightCor = 511;
+		}
+		
+		if(isUp){
+			do Screen.drawRectangle(locX ,16, rightCor, height + 16);
+			do Screen.drawRectangle(locEdge, height + 17, rightCorBigger, height + 34);
+			return;
+		}
+		do Screen.drawRectangle(locX, 255 - height, rightCor, 255);
+		do Screen.drawRectangle(locEdge,238 - height, rightCorBigger, 254 - height);
+		return;
+	}
+		/** Removes the old drawing of the pillar, moves its location and re-draws it. */
+	method void move(){
+		if (waiting > 0){
+			let waiting = waiting - 1;
+			return;
+		}
+		do Screen.setColor(false);
+		do draw();
+		let locX = locX - 5;
+		do Screen.setColor(true);
+		do draw();
+		return;
+	}
+
+	method int getLocX(){return locX;}
+	
+	method int getHight(){return height;}
+	
+	method int getWidth(){return width;}
+	
+	
+	   /** Disposes this pillar. */
+    method void dispose() {
+		
+		do Memory.deAlloc(this);
+		return;
+   }
+
+
+}

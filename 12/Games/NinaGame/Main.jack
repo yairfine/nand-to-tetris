@@ -1,0 +1,11 @@
+// The class runs the game
+class Main {
+    
+	function void main(){
+        var JellyfishGame game;
+        let game = JellyfishGame.new();
+        do game.run_game();
+        do game.delete();
+        return;	
+    }
+}

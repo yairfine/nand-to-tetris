@@ -1,0 +1,246 @@
+/**  a class implementing the ball object*/
+class Ball {
+
+    field int radius; // the ball radius
+    field int falling_speed; // pixels the ball fall in each round.
+    field int x_speed; // the pixels the ball move each round horizontly (if it got order to move to the side).
+    field int jumping_speed; // the pixels the ball move each round horizontly (if it got order to move to the side).
+    field boolean is_falling; // does the ball is in falling state.
+    field boolean is_jumping; // does the ball is in jumping state.
+    field int jump_length; // length of a jump (in game rounds).
+    field int jump_counter; // counter to stop jumping.
+    field int x_direction;  // -1 if the ball was ordered to move left,  0 for not moving, 1 for moving to the right.
+    field int x; // the ball current x coordinate.
+    field int y; // the ball current y coordinate.
+    field int prev_x; // the ball prev x coordinate.
+    field int prev_y; // the ball prev y coordinate.
+    field int count_to_speed; // the x direction moving counter.
+    field int speed_counter; // the x direction basic moving counter.
+    field int friction_counter; // the x direction moving counter.
+    
+
+    /**
+    constructor for Ball
+    param int r: the ball radius
+    param int falling_s: the falling speed of the ball
+    param int x_s: the horizontal speed when the ball move
+    param int init_y: the vertical initial location
+    param int init_x: the horizontal initial location
+    */
+    constructor Ball new (int r, int falling_s,int jumping_s, int x_s, int init_y, int init_x){
+        let radius = r;
+        let falling_speed = falling_s;
+        let jumping_speed = jumping_s;
+        let x_speed = x_s;
+        let jump_length = 15; //todo: determine?
+        let jump_counter = jump_length;
+        let is_falling = false;
+        let is_jumping = false;
+        let x_direction = 0;
+        let x = init_x;
+        let y = init_y;
+        let prev_x=x;
+        let prev_y=y;
+        let speed_counter = 15;
+        let count_to_speed = speed_counter;
+        let friction_counter = 100;
+        // let stop = false;
+        // let stop_counter = 0;
+        return this;
+    }
+
+
+
+    /**  get the ball x coordinate .*/
+    method int get_x(){
+        return x;
+    } 
+
+    
+    /**  get the ball y coordinate .*/
+    method int get_y(){
+        return y;
+    } 
+
+    /**  get the ball x coordinate .*/
+    method int get_prevx(){
+        return prev_x;
+    } 
+
+    
+    /**  get the ball y coordinate .*/
+    method int get_prevy(){
+        return prev_y;
+    } 
+
+        
+    /**  get the ball radius .*/
+    method int get_radius(){ 
+        return radius;
+    } 
+
+    /**  get the ball dirction .*/  
+    method int get_direction(){
+        return x_direction;
+    } 
+
+    /**  get the ball speed .*/  
+    method int get_speed(){
+        return x_speed;
+    } 
+
+    /**  return true if the ball is falling, else return false .*/
+    method boolean is_falling(){
+        return is_falling;
+    } 
+
+    /**  return true if the ball is jumping, else return false .*/
+    method boolean is_jumping(){
+        return is_jumping;
+    } 
+    
+    /**  changes the ball direction .*/
+    method void change_direction(){
+        let x_direction = (-1) * x_direction;
+        return;
+    } 
+
+    /**
+    set the ball coordinates, based on ,falling, falling_speed,  x_speed, x_direction.
+    */
+    method void move(){
+        let prev_x = x;
+        let prev_y = y;
+        if (count_to_speed = 0){
+            let x = x + (x_speed * x_direction);
+            let count_to_speed = speed_counter;
+        }
+        else {
+            let count_to_speed = count_to_speed - 1;
+        }
+        if (friction_counter = 0){
+            if (speed_counter < 15){
+                let speed_counter = speed_counter + 1;
+            }
+            let friction_counter = 500;
+        }
+        else {
+            let friction_counter = friction_counter - 1;
+        }
+        if (is_falling & (count_to_speed = 0)){
+            let y = y + falling_speed;
+        }
+        else {
+            if (is_jumping & (count_to_speed = 0)){
+                let y = y - jumping_speed;
+                let jump_counter = jump_counter - 1;
+            }
+            if (jump_counter = 0){
+                do set_jumping(false);
+                do set_falling(true);
+                let jump_counter = jump_length;
+            }
+        }
+        return;
+    } 
+    
+    
+    
+    /**
+    set the ball direction on the horizontal pivot.
+    int param d:  -1 for  left,  0 for not moving, 1 for right.
+    */
+    method void set_direction(int dir){
+        let x_direction = dir;
+        return;
+    } 
+    
+    /**
+    set the ball direction on the horizontal pivot.
+    int param d:  -1 for  left,  0 for not moving, 1 for right.
+    */
+    method void restart_speed(){
+        let speed_counter = 10;
+        let count_to_speed = speed_counter;
+        return;
+    } 
+
+
+    /**
+    set the ball falling state.
+    int param falling:  the ball new state.
+    */
+    method void set_falling(boolean falling){
+        let is_falling=falling;
+        return;
+    } 
+    
+    /**
+    set the ball jumping state.
+    int param jumping:  the ball new state.
+    */
+    method void set_jumping(boolean jumping){
+        let is_jumping=jumping;
+        return;
+    } 
+
+    /**
+    set the ball hight.
+    int param y:  the ball new hight.
+    */
+    method void set_y(int new_y){
+        let y=new_y;
+        return;
+    } 
+
+    /**
+    set the ball state.
+    int param x:  the ball new x coordinate.
+    */
+    method void set_x(int new_x){
+        let x=new_x;
+        return;
+    } 
+    
+    
+    /**
+    set the ball x speed.
+    int param speed:  the ball new x speed.
+    */
+    method void inc_speed(){
+        if (speed_counter > 2){
+            let speed_counter = speed_counter - 1;
+        }
+        return;
+    }  
+    
+    /**
+    set the ball x speed.
+    int param speed:  the ball new x speed.
+    */
+    method void set_speed(int speed){
+        let x_speed = speed;
+        return;
+    } 
+    
+    /**
+    erase the ball from the old location and draw it in the new location.
+    */
+    method void draw(){
+        if ((x=prev_x) & (y=prev_y)){
+            return;
+        }
+        do Screen.setColor(false); //erasing
+        do Screen.drawCircle(prev_x,prev_y,radius);
+        
+        do Screen.setColor(true); //drawing again
+        do Screen.drawCircle(x, y,radius);
+        
+        return;
+    } 
+
+
+    
+}
+
+  
