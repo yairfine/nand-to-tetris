@@ -45,7 +45,7 @@ class JackTokenizer:
         self.stream = re.sub("^//.*", "", self.stream, flags=re.MULTILINE)
 
 
-        self.stream = re.sub('(#[^"\n\r]*(?:"[^"\n\r]*"[^"\n\r]*)*[\r\n]|/\*([^*]|\*(?!/))*?\*/)(?=[^"]*(?:"[^"]*"[^"]*)*$)', "", self.stream)
+        self.stream = re.sub('(#[^"\n\r]*(?:"[^"\n\r]*"[^"\n\r]*)*[\r\n]|/\*([^*]|\*(?!/))*?\*/)(?=[^"]*(?:"[^"]*"[^"]*)*$)', "", self.stream)  # removing comments such as /* */, // and etc.
         lines = self.stream.splitlines()
         self.stream = self.clean_comments(lines)
 
