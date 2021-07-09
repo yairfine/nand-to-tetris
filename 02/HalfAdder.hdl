@@ -21,6 +21,7 @@ CHIP HalfAdder {
     Nand(a=aNandb, b=b, out=temp2);
     Nand(a=temp1, b=temp2, out=sum);
 
+    // Basicaly, Applied this 'And' and 'Xor' gates:
     // And(a=a, b=b, out=sum);
-	// Xor(a=a, b=b, out=carry);
+    // Xor(a=a, b=b, out=carry);
 }
