@@ -1,7 +1,7 @@
 # Nand to Tetris
 > Made by [yairfine](https://github.com/yairfine) and [dor-d](https://github.com/dor-d)<br>
 
-Projects 6, 7, 10, 11 written in **Python**<br>
+Projects 6, 7, 8, 10, 11 made with pure **Python** <img src='https://github.com/MarikIshtar007/MarikIshtar007/blob/master/images/python2.png' width='30'/><br>
 
 Star ⭐ the repository if you liked!<br>
 
